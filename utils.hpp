@@ -8,7 +8,8 @@ using namespace std;
 
 struct No {
   int id;
-  double x, y;
+  double x;
+  double y;
 };
 
 struct DemandaNo {
@@ -25,17 +26,21 @@ struct InstanciaEVRP {
   int dimensao;
   int estacoesTotal;
   int capacidade;
-  double capacidadeEnergia;
+  int capacidadeEnergia;
   double consumoEnergia;
   string formatoBorda;
-
+  int idDeposito;
+  
   vector<No> nos;
   vector<DemandaNo> demandas;
   vector<int> idEstacoes;
-  int idDeposito;
 };
 
+void imprimirNo(const No &n);
+void imprimirDemandaNo(const DemandaNo &d);
+void imprimirInstanciaEVRP(const InstanciaEVRP &instancia);
 bool carregarInstancia(const string &nomeArquivo, InstanciaEVRP &instancia);
+double calcularDistancia(const No &a, const No &b);
+void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo);
 
-void resolverEVRP(const InstanciaEVRP &instancia);
 #endif

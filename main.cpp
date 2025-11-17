@@ -1,22 +1,25 @@
 #include "utils.hpp"
 #include <iostream>
+#include <vector>
 #include <string>
 
 using namespace std;
 
 int main() {
-  string nomeArquivo;
-  cout << "Digite o nome do arquivo (ex: E-n22-k4.evrp): ";
-  cin >> nomeArquivo;
+    vector<string> instancias = {
+        "E-n22-k4.evrp",
+        "E-n23-k3.evrp",
+        "E-n30-k3.evrp",
+        "E-n33-k4.evrp",
+        "E-n51-k5.evrp",
+        "E-n76-k7.evrp"
+    };
 
-  InstanciaEVRP instancia;
+    InstanciaEVRP instancia;
 
-  if (carregarInstancia(nomeArquivo, instancia)) {
-    resolverEVRP(instancia);
-    cout << "" << endl;
-  } else {
-    cerr << "Falha ao processar o arquivo." << endl;
-  }
+    if (carregarInstancia(instancias[0], instancia)) {
+      resolverEVRP(instancia, instancias[0]);
+    }
 
-  return 0;
+    return 0;
 }
