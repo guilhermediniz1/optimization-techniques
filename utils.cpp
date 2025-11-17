@@ -1,117 +1,165 @@
-#include <iostream>
+#include "utils.hpp"
+#include "ilcplex/cplex.h"
+#include "ilcplex/ilocplex.h"
 #include <fstream>
-#include <cstring>
-#include <cstdio>
-#include "utils.h"
-
-#define TAMANHO_BUFFER 100
-#define TAMANHO_MAX_CAMINHO 64
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
-enum FuncaoLeitura
-{
-    PARAMETROS,
-    COORDENADAS,
-    DEMANDAS,
-    PONTOS_RECARGA,
-    DEPOSITO
-};
+void imprimirNo(const No &n) {
+  cout << "No(ID: " << n.id << ", X: " << n.x << ", Y: " << n.y << ")";
+}
 
-void ler_instancia(char *arquivo)
-{
-    ifstream leitor;
-    const char *caminho_base = "dataset";
+void imprimirDemandaNo(const DemandaNo &d) {
+  cout << "Demanda(ID: " << d.id << ", Q: " << d.demanda << ")";
+}
 
-    char caminho_arquivo[TAMANHO_MAX_CAMINHO];
+void imprimirInstanciaEVRP(const InstanciaEVRP &instancia) {
+  cout << "\n--- Resumo da Instancia ---" << endl;
+  cout << "Nome: " << instancia.nome << endl;
+  cout << "Tipo: " << instancia.tipo << endl;
+  cout << "Veiculos: " << instancia.veiculos << endl;
+  cout << "Dimensao: " << instancia.dimensao << endl;
+  cout << "Estacoes: " << instancia.estacoesTotal << endl;
+  cout << "Capacidade: " << instancia.capacidade << endl;
+  cout << "Deposito: " << instancia.idDeposito << endl;
 
-    snprintf(caminho_arquivo, TAMANHO_MAX_CAMINHO, "%s\\%s", caminho_base, arquivo);
+  cout << "\nTotal de Nos lidos: " << instancia.nos.size() << endl;
+  if (!instancia.nos.empty()) {
+    cout << "  -> Primeiro no: ";
+    imprimirNo(instancia.nos[0]);
+    cout << endl;
+  }
 
-    leitor.open(caminho_arquivo);
+  cout << "\nTotal de Demandas lidas: " << instancia.demandas.size() << endl;
+  if (instancia.demandas.size() > 1) {
+    // Pega o segundo item (indice 1) pois o primeiro (deposito) tem demanda 0
+    cout << "  -> Segunda demanda: ";
+    imprimirDemandaNo(instancia.demandas[1]);
+    cout << endl;
+  }
 
-    if (leitor.is_open())
-    {
-        int capacidade_carga, capacidade_bateria, veiculos, dimensao, estacoes;
-        float taxa_consumo_bateria;
-        FuncaoLeitura funcaoAtual = PARAMETROS;
+  cout << "\nTotal de Estacoes (IDs): " << instancia.idEstacoes.size() << endl;
+  if (!instancia.idEstacoes.empty()) {
+    cout << "  -> ID da primeira estacao: " << instancia.idEstacoes[0] << endl;
+  }
+  cout << "--------------------------------" << endl;
+}
+// --- FIM DA CORRECAO 2 ---
 
-        char buffer[TAMANHO_BUFFER];
+bool carregarInstancia(const string &nomeArquivo, InstanciaEVRP &instancia) {
+  string caminhoCompleto = "dataset/" + nomeArquivo;
+  ifstream arquivo(caminhoCompleto);
 
-        while (leitor.getline(buffer, TAMANHO_BUFFER)) {
-            if (strncmp(buffer, "DIMENSION", 8) == 0) {
-                if (sscanf(buffer, "DIMENSION: %d", &dimensao) == 1) {
-                    cout << "Dimensao: " << dimensao << endl;
-                }
-                continue;
+  if (!arquivo.is_open()) {
+    cerr << "Erro: Nao foi possivel abrir o arquivo " << caminhoCompleto
+         << endl;
+    return false;
+  }
 
-            } else if (strncmp(buffer, "STATIONS", 8) == 0) {
-                if (sscanf(buffer, "STATIONS: %d", &estacoes) == 1) {
-                    cout << "Estacoes de carregamento: " << estacoes << endl;
-                }
-                continue;
-            } 
-            
-            // Inicializando matriz de coordenadas
-            int coordenadas[dimensao + estacoes][2];
-            
-            
-            if (strncmp(buffer, "CAPACITY", 8) == 0) {
-                if (sscanf(buffer, "CAPACITY: %d", &capacidade_carga) == 1) {
-                    cout << "Capacidade: " << capacidade_carga << endl;
-                }
-                continue;
-            } else if (strncmp(buffer, "ENERGY_CAPACITY", 15) == 0) {
-                if (sscanf(buffer, "ENERGY_CAPACITY: %d", &capacidade_bateria) == 1) {
-                    cout << "Capacidade de Energia: " << capacidade_bateria << endl;
-                }
-                continue;
-            } else if (strncmp(buffer, "ENERGY_CONSUMPTION", 18) == 0) {
-                if (sscanf(buffer, "ENERGY_CONSUMPTION: %f", &taxa_consumo_bateria) == 1) {
-                    cout << "Consumo de bateria: " << taxa_consumo_bateria << endl;
-                }
-                continue;
-            } else if (strncmp(buffer, "NODE_COORD_SECTION", 18) == 0) {
-                funcaoAtual = COORDENADAS;
-                continue;
-            } else if (strncmp(buffer, "DEMAND_SECTION", 14) == 0) {
-                funcaoAtual = DEMANDAS;
-                continue;
-            } else if (strncmp(buffer, "STATIONS_COORD_SECTION", 14) == 0) {
-                funcaoAtual = PONTOS_RECARGA;
-                continue;
-            } else if (strncmp(buffer, "DEPOT_SECTION", 8) == 0) {
-                funcaoAtual = DEPOSITO;
-                continue;
-            } else if (strncmp(buffer, "EOF", 3) == 0) {
-                break;
-            }
+  string linha;
+  string secaoAtual = "";
 
-            switch (funcaoAtual) {
-            case COORDENADAS:
-                cout << "Coord: " << buffer << endl;
-                break;
+  while (getline(arquivo, linha)) {
 
-            case DEMANDAS:
-                cout << "Demanda: " << buffer << endl;
-                break;
+    // Ignora linhas em branco
+    if (linha.find_first_not_of(" \t") == string::npos) {
+      continue;
+    }
 
-            case PONTOS_RECARGA:
-                cout << "Pontos de recarga: " << buffer << endl;
-                break;
+    // Identifica secoes
+    if (linha.find("NODE_COORD_SECTION") != string::npos) {
+      secaoAtual = "NODE_COORD_SECTION";
+      continue;
+    } else if (linha.find("DEMAND_SECTION") != string::npos) {
+      secaoAtual = "DEMAND_SECTION";
+      continue;
+    } else if (linha.find("STATIONS_COORD_SECTION") != string::npos) {
+      secaoAtual = "STATIONS_COORD_SECTION";
+      continue;
+    } else if (linha.find("DEPOT_SECTION") != string::npos) {
+      secaoAtual = "DEPOT_SECTION";
+      continue;
+    } else if (linha.find("EOF") != string::npos) {
+      break;
+    }
 
-            case DEPOSITO:
-                cout << "Deposito: " << buffer << endl;
-                break;
+    istringstream issLinha(linha);
 
-            default:
-                break;
-            }
+    // Secao de Cabecalho (Chave: Valor)
+    if (secaoAtual == "") {
+      size_t divisorPos = linha.find(":");
+      if (divisorPos == string::npos)
+        continue;
+
+      // Limpa a chave
+      string chave = linha.substr(0, divisorPos);
+      size_t ultimoCaractereChave = chave.find_last_not_of(" \t");
+      if (ultimoCaractereChave != string::npos) {
+        chave = chave.substr(0, ultimoCaractereChave + 1);
+      }
+
+      // Limpa o valor
+      string valorStr = linha.substr(divisorPos + 1);
+      size_t primeiroCaractereValor = valorStr.find_first_not_of(" \t");
+      if (primeiroCaractereValor == string::npos)
+        continue;
+      valorStr = valorStr.substr(primeiroCaractereValor);
+
+      stringstream ssValor(valorStr);
+
+      if (chave == "Name") {
+        instancia.nome = valorStr;
+      } else if (chave == "COMMENT") {
+        instancia.comentario = valorStr;
+      } else if (chave == "TYPE") {
+        instancia.tipo = valorStr;
+      } else if (chave == "OPTIMAL_VALUE") {
+        ssValor >> instancia.valorOtimo;
+      } else if (chave == "VEHICLES") {
+        ssValor >> instancia.veiculos;
+      } else if (chave == "DIMENSION") {
+        ssValor >> instancia.dimensao;
+      } else if (chave == "STATIONS") {
+        ssValor >> instancia.estacoesTotal;
+      } else if (chave == "CAPACITY") {
+        ssValor >> instancia.capacidade;
+      } else if (chave == "ENERGY_CAPACITY") {
+        ssValor >> instancia.capacidadeEnergia;
+      } else if (chave == "ENERGY_CONSUMPTION") {
+        ssValor >> instancia.consumoEnergia;
+      } else if (chave == "EDGE_WEIGHT_FORMAT") {
+        instancia.formatoBorda = valorStr;
+      }
+    } else if (secaoAtual == "NODE_COORD_SECTION") {
+      int id;
+      double x, y;
+      if (issLinha >> id >> x >> y) {
+        instancia.nos.push_back({id, x, y});
+      }
+    } else if (secaoAtual == "DEMAND_SECTION") {
+      int id, demanda;
+      if (issLinha >> id >> demanda) {
+        instancia.demandas.push_back({id, demanda});
+      }
+    } else if (secaoAtual == "STATIONS_COORD_SECTION") {
+      int id;
+      if (issLinha >> id) {
+        instancia.idEstacoes.push_back(id);
+      }
+    } else if (secaoAtual == "DEPOT_SECTION") {
+      int id;
+      if (issLinha >> id) {
+        if (id != -1) {
+          instancia.idDeposito = id;
         }
+      }
+    }
+  }
 
-        leitor.close();
-    }
-    else
-    {
-        cout << "Erro: Nao foi possivel abrir o arquivo de instancia: '" << caminho_arquivo << "'" << endl;
-    }
+  arquivo.close();
+  return true;
 }

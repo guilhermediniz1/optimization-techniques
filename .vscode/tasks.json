@@ -1,0 +1,45 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "C/C++: g++ build for CPLEX",
+            "type": "cppbuild",
+            "command": "g++",
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "-m64",
+                "-DIL_STD",
+                
+                "-I/opt/ibm/ILOG/CPLEX_Studio2211/cplex/include",
+                "-I/opt/ibm/ILOG/CPLEX_Studio2211/concert/include",
+                
+                "-L/opt/ibm/ILOG/CPLEX_Studio2211/cplex/lib/x86-64_linux/static_pic",
+                "-L/opt/ibm/ILOG/CPLEX_Studio2211/concert/lib/x86-64_linux/static_pic",
+                
+                "main.cpp",
+                "utils.cpp",
+                
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}",
+                
+                "-lilocplex",
+                "-lcplex",
+                "-lconcert",
+                "-lpthread",
+                "-ldl"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compiler: g++"
+        }
+    ]
+}

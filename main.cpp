@@ -1,12 +1,22 @@
+#include "utils.hpp"
 #include <iostream>
-#include <fstream>
-#include "utils.h"
+#include <string>
 
 using namespace std;
 
-int main (int argc, char* argv[]) {
-    char* arquivo = argv[1];
-    ler_instancia(arquivo);
+int main() {
+  string nomeArquivo;
+  cout << "Digite o nome do arquivo (ex: E-n22-k4.evrp): ";
+  cin >> nomeArquivo;
 
-    return 0;
+  InstanciaEVRP instancia;
+
+  if (carregarInstancia(nomeArquivo, instancia)) {
+    resolverEVRP(instancia);
+    cout << "" << endl;
+  } else {
+    cerr << "Falha ao processar o arquivo." << endl;
+  }
+
+  return 0;
 }
