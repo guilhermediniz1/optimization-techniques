@@ -30,7 +30,7 @@ struct InstanciaEVRP {
   double consumoEnergia;
   string formatoBorda;
   int idDeposito;
-  
+
   vector<No> nos;
   vector<DemandaNo> demandas;
   vector<int> idEstacoes;

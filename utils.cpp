@@ -1,13 +1,13 @@
 #include "utils.hpp"
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
+#include <cmath>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cmath>
-#include <iomanip>
 
 using namespace std;
 
@@ -51,7 +51,7 @@ void imprimirInstanciaEVRP(const InstanciaEVRP &instancia) {
 }
 
 bool carregarInstancia(const string &nomeArquivo, InstanciaEVRP &instancia) {
-  string caminhoCompleto = "dataset/" + nomeArquivo;
+  string caminhoCompleto = "dataset/" + nomeArquivo + ".evrp";
   ifstream arquivo(caminhoCompleto);
 
   if (!arquivo.is_open()) {
@@ -189,7 +189,8 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
       for (int s = 0; s < m; s++) {
         int idEstacao = instancia.idEstacoes[s] - 1;
         int indiceEstacao = n + s;
-        double d = calcularDistancia(instancia.nos[i], instancia.nos[idEstacao]);
+        double d =
+            calcularDistancia(instancia.nos[i], instancia.nos[idEstacao]);
         dist[i][indiceEstacao] = d;
         dist[indiceEstacao][i] = d;
       }
@@ -205,6 +206,9 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
         dist[idx1][idx2] = d;
       }
     }
+
+    // debugando matriz de dist
+    for (i = 0; )
 
     IloArray<IloNumVarArray> x(env, totalNos);
     for (int i = 0; i < totalNos; i++) {
@@ -277,8 +281,10 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     for (int i = 1; i <= numClientes; i++) {
       for (int j = 1; j < totalNos; j++) {
         if (i != j) {
-          model.add(y[j] <= y[i] - h * dist[i][j] + BigM_battery * (1 - x[i][j]));
-          model.add(y[j] >= y[i] - h * dist[i][j] - BigM_battery * (1 - x[i][j]));
+          model.add(y[j] <=
+                    y[i] - h * dist[i][j] + BigM_battery * (1 - x[i][j]));
+          model.add(y[j] >=
+                    y[i] - h * dist[i][j] - BigM_battery * (1 - x[i][j]));
         }
       }
     }
@@ -288,7 +294,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
       model.add(y[j] <= Q - h * dist[0][j] + BigM_battery * (1 - x[0][j]));
       model.add(y[j] >= Q - h * dist[0][j] - BigM_battery * (1 - x[0][j]));
     }
-    
+
     for (int s = 0; s < m; s++) {
       int i = n + s;
       for (int j = 1; j < totalNos; j++) {
@@ -357,7 +363,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     IloCplex cplex(model);
     cplex.setParam(IloCplex::Param::TimeLimit, 3600);
     cplex.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 0.0);
-    
+
     double tempoInicio = cplex.getCplexTime();
     bool solved = cplex.solve();
     double tempoTotal = cplex.getCplexTime() - tempoInicio;
@@ -370,7 +376,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
 
     string solucaoArquivo = "solucoes/" + nomeBase + "_CPLEX.txt";
     ofstream solFile(solucaoArquivo);
-    
+
     solFile << "Instancia: " << nomeBase << endl;
     solFile << fixed << setprecision(6);
 
@@ -379,7 +385,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     if (solved) {
       IloAlgorithm::Status status = cplex.getStatus();
       ub = cplex.getObjValue();
-      
+
       try {
         lb = cplex.getBestObjValue();
       } catch (...) {
@@ -397,7 +403,8 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
       solFile << "Status: " << status << endl;
 
       if (instancia.valorOtimo > 0) {
-        double gapOtimo = ((ub - instancia.valorOtimo) / instancia.valorOtimo) * 100.0;
+        double gapOtimo =
+            ((ub - instancia.valorOtimo) / instancia.valorOtimo) * 100.0;
         solFile << "Valor Otimo Conhecido: " << instancia.valorOtimo << endl;
         solFile << "GAP vs Otimo (%): " << gapOtimo << endl;
         cout << "  GAP vs Otimo: " << gapOtimo << "%" << endl;
@@ -413,7 +420,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
           int atual = start;
           double distRota = dist[0][start];
           double cargaRota = 0;
-          
+
           int maxIter = totalNos * 2;
           int iter = 0;
 
@@ -438,19 +445,19 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
               rota.push_back(0);
               break;
             }
-            
+
             if (proximo == 0) {
               rota.push_back(0);
               break;
             }
-            
+
             atual = proximo;
             iter++;
           }
 
           for (size_t i = 0; i < rota.size(); i++) {
             int no = rota[i];
-            
+
             if (no == 0) {
               solFile << "0";
             } else if (no <= numClientes) {
@@ -458,7 +465,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
             } else {
               solFile << "E" << (no - n + 1);
             }
-            
+
             if (i < rota.size() - 1) {
               solFile << " ";
             }
@@ -478,7 +485,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     } else {
       solFile << "\nStatus: Sem solucao no tempo limite" << endl;
       solFile << "TEMPO (seg): " << tempoTotal << endl;
-      
+
       try {
         lb = cplex.getBestObjValue();
         solFile << "LB (Lower Bound): " << lb << endl;
@@ -491,7 +498,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     }
 
     solFile.close();
-    
+
     cout << "\nSolucao salva em: " << solucaoArquivo << endl;
 
     env.end();
