@@ -41,6 +41,5 @@ void imprimirDemandaNo(const DemandaNo &d);
 void imprimirInstanciaEVRP(const InstanciaEVRP &instancia);
 bool carregarInstancia(const string &nomeArquivo, InstanciaEVRP &instancia);
 double calcularDistancia(const No &a, const No &b);
-void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo);
 
 #endif
