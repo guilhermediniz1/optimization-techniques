@@ -1,0 +1,5 @@
+Instancia: X-n573-k30
+
+Status: Sem solucao no tempo limite
+TEMPO (seg): 3600.875449
+LB (Lower Bound): 9289.718519

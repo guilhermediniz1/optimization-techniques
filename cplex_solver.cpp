@@ -66,13 +66,6 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     double Q = instancia.capacidadeEnergia;
     double C = instancia.capacidade;
 
-    // debugando matiz x 
-    for (int i = 0; i < totalNos; i++) {
-      for (int j = 0; j < totalNos; j++) {
-        cout << i << "->" << j << " = " << x[i][j];
-      }
-    }
-
     // FO (1)
     IloExpr objExpr(env);
     for (int i = 0; i < totalNos; i++) {
@@ -82,6 +75,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
         }
       }
     }
+
     model.add(IloMinimize(env, objExpr));
     objExpr.end();
 

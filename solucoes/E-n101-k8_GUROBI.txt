@@ -1,0 +1,5 @@
+Instancia: E-n101-k8
+
+Status: Sem solucao encontrada
+TEMPO (seg): 3600.032138
+LB (Lower Bound): 633.917673
