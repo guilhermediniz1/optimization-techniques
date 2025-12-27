@@ -1,5 +1,0 @@
-Instancia: X-n351-k40
-
-Status: Sem solucao no tempo limite
-TEMPO (seg): 3600.442727
-LB (Lower Bound): 8730.285182

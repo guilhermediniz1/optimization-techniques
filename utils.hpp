@@ -24,6 +24,7 @@ struct InstanciaEVRP {
   double valorOtimo;
   int veiculos;
   int dimensao;
+  int estacoes;
   int estacoesTotal;
   int capacidade;
   int capacidadeEnergia;
@@ -41,5 +42,8 @@ void imprimirDemandaNo(const DemandaNo &d);
 void imprimirInstanciaEVRP(const InstanciaEVRP &instancia);
 bool carregarInstancia(const string &nomeArquivo, InstanciaEVRP &instancia);
 double calcularDistancia(const No &a, const No &b);
+No getNoByIndex(const InstanciaEVRP &instancia, int idx);
+void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo);
+int getDemandaByNodeId(const InstanciaEVRP &instancia, int nodeId);
 
 #endif

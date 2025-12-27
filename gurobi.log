@@ -5015,3 +5015,242 @@ Solution count 10: 384.678 386.886 387.45 ... 408.314
 
 Time limit reached
 Best objective 3.846780925829e+02, best bound 3.108854561017e+02, gap 19.1830%
+
+Gurobi 12.0.3 (linux64, C++) logging started Wed Dec 24 16:30:14 2025
+
+Set parameter Username
+Set parameter LicenseID to value 2736324
+Set parameter LogFile to value "gurobi.log"
+Academic license - for non-commercial use only - expires 2026-11-11
+Read LP format model from file lp/test.lp
+Reading time = 0.00 seconds
+obj: 223 rows, 80 columns, 729 nonzeros
+Set parameter TimeLimit to value 3600
+Set parameter MIPGap to value 0
+Gurobi Optimizer version 12.0.3 build v12.0.3rc0 (linux64 - "Fedora Linux 43 (Workstation Edition)")
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13620H, instruction set [SSE2|AVX|AVX2]
+Thread count: 16 physical cores, 16 logical processors, using up to 16 threads
+
+Non-default parameters:
+TimeLimit  3600
+MIPGap  0
+
+Optimize a model with 223 rows, 80 columns and 729 nonzeros
+Model fingerprint: 0x1ecdf8d7
+Variable types: 16 continuous, 64 integer (64 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 4e+03]
+  Objective range  [9e+00, 7e+01]
+  Bounds range     [1e+00, 2e+03]
+  RHS range        [1e+00, 5e+03]
+Presolve removed 146 rows and 51 columns
+Presolve time: 0.00s
+
+Explored 0 nodes (0 simplex iterations) in 0.00 seconds (0.00 work units)
+Thread count was 1 (of 16 available processors)
+
+Solution count 0
+
+Model is infeasible
+Best objective -, best bound -, gap -
+
+Gurobi 12.0.3 (linux64, C++) logging started Wed Dec 24 16:30:48 2025
+
+Set parameter Username
+Set parameter LicenseID to value 2736324
+Set parameter LogFile to value "gurobi.log"
+Academic license - for non-commercial use only - expires 2026-11-11
+Read LP format model from file lp/test.lp
+Reading time = 0.00 seconds
+obj: 223 rows, 80 columns, 729 nonzeros
+Set parameter TimeLimit to value 3600
+Set parameter MIPGap to value 0
+Gurobi Optimizer version 12.0.3 build v12.0.3rc0 (linux64 - "Fedora Linux 43 (Workstation Edition)")
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13620H, instruction set [SSE2|AVX|AVX2]
+Thread count: 16 physical cores, 16 logical processors, using up to 16 threads
+
+Non-default parameters:
+TimeLimit  3600
+MIPGap  0
+
+Optimize a model with 223 rows, 80 columns and 729 nonzeros
+Model fingerprint: 0x20b84087
+Variable types: 16 continuous, 64 integer (64 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 4e+03]
+  Objective range  [2e+01, 7e+01]
+  Bounds range     [1e+00, 2e+03]
+  RHS range        [1e+00, 5e+03]
+Presolve removed 119 rows and 33 columns
+Presolve time: 0.00s
+Presolved: 104 rows, 47 columns, 526 nonzeros
+Variable types: 13 continuous, 34 integer (34 binary)
+Found heuristic solution: objective 313.7056000
+
+Root relaxation: objective 2.459367e+02, 43 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0  245.93669    0   12  313.70560  245.93669  21.6%     -    0s
+H    0     0                     304.2172000  245.93669  19.2%     -    0s
+H    0     0                     296.3045000  245.93669  17.0%     -    0s
+     0     0  283.38460    0   10  296.30450  283.38460  4.36%     -    0s
+
+Cutting planes:
+  Learned: 3
+  Gomory: 9
+  Cover: 1
+  Clique: 3
+  MIR: 11
+  RLT: 3
+  Relax-and-lift: 4
+
+Explored 1 nodes (87 simplex iterations) in 0.01 seconds (0.01 work units)
+Thread count was 16 (of 16 available processors)
+
+Solution count 3: 296.304 304.217 313.706 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 2.963045000000e+02, best bound 2.963045000000e+02, gap 0.0000%
+
+Gurobi 12.0.3 (linux64, C++) logging started Wed Dec 24 16:40:51 2025
+
+Set parameter Username
+Set parameter LicenseID to value 2736324
+Set parameter LogFile to value "gurobi.log"
+Academic license - for non-commercial use only - expires 2026-11-11
+Read LP format model from file lp/test.lp
+Reading time = 0.00 seconds
+obj: 223 rows, 80 columns, 729 nonzeros
+Set parameter TimeLimit to value 3600
+Set parameter MIPGap to value 0
+Gurobi Optimizer version 12.0.3 build v12.0.3rc0 (linux64 - "Fedora Linux 43 (Workstation Edition)")
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13620H, instruction set [SSE2|AVX|AVX2]
+Thread count: 16 physical cores, 16 logical processors, using up to 16 threads
+
+Non-default parameters:
+TimeLimit  3600
+MIPGap  0
+
+Optimize a model with 223 rows, 80 columns and 729 nonzeros
+Model fingerprint: 0x20b84087
+Variable types: 16 continuous, 64 integer (64 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 4e+03]
+  Objective range  [2e+01, 7e+01]
+  Bounds range     [1e+00, 2e+03]
+  RHS range        [1e+00, 5e+03]
+Presolve removed 119 rows and 33 columns
+Presolve time: 0.00s
+Presolved: 104 rows, 47 columns, 526 nonzeros
+Variable types: 13 continuous, 34 integer (34 binary)
+Found heuristic solution: objective 313.7056000
+
+Root relaxation: objective 2.459367e+02, 43 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0  245.93669    0   12  313.70560  245.93669  21.6%     -    0s
+H    0     0                     304.2172000  245.93669  19.2%     -    0s
+H    0     0                     296.3045000  245.93669  17.0%     -    0s
+     0     0  283.38460    0   10  296.30450  283.38460  4.36%     -    0s
+
+Cutting planes:
+  Learned: 3
+  Gomory: 9
+  Cover: 1
+  Clique: 3
+  MIR: 11
+  RLT: 3
+  Relax-and-lift: 4
+
+Explored 1 nodes (87 simplex iterations) in 0.01 seconds (0.01 work units)
+Thread count was 16 (of 16 available processors)
+
+Solution count 3: 296.304 304.217 313.706 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 2.963045000000e+02, best bound 2.963045000000e+02, gap 0.0000%
+
+Gurobi 12.0.3 (linux64, C++) logging started Fri Dec 26 10:55:08 2025
+
+Set parameter Username
+Set parameter LicenseID to value 2736324
+Set parameter LogFile to value "gurobi.log"
+Academic license - for non-commercial use only - expires 2026-11-11
+Read LP format model from file lp/test.lp
+Reading time = 0.00 seconds
+obj: 345 rows, 110 columns, 1136 nonzeros
+Set parameter TimeLimit to value 3600
+Set parameter MIPGap to value 0
+Gurobi Optimizer version 12.0.3 build v12.0.3rc0 (linux64 - "Fedora Linux 43 (Workstation Edition)")
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13620H, instruction set [SSE2|AVX|AVX2]
+Thread count: 16 physical cores, 16 logical processors, using up to 16 threads
+
+Non-default parameters:
+TimeLimit  3600
+MIPGap  0
+
+Optimize a model with 345 rows, 110 columns and 1136 nonzeros
+Model fingerprint: 0x53b503bd
+Variable types: 20 continuous, 90 integer (90 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 4e+03]
+  Objective range  [3e+01, 7e+01]
+  Bounds range     [1e+00, 2e+03]
+
+Gurobi 12.0.3 (linux64, C++) logging started Fri Dec 26 23:08:34 2025
+
+Set parameter Username
+Set parameter LicenseID to value 2736324
+Set parameter LogFile to value "gurobi.log"
+Academic license - for non-commercial use only - expires 2026-11-11
+Warning: unknown variable 'y_0' in bounds section (line 209)
+Read LP format model from file lp/test.lp
+Reading time = 0.00 seconds
+obj: 199 rows, 110 columns, 630 nonzeros
+Set parameter TimeLimit to value 3600
+Set parameter MIPGap to value 0
+Gurobi Optimizer version 12.0.3 build v12.0.3rc0 (linux64 - "Fedora Linux 43 (Workstation Edition)")
+
+CPU model: 13th Gen Intel(R) Core(TM) i7-13620H, instruction set [SSE2|AVX|AVX2]
+Thread count: 16 physical cores, 16 logical processors, using up to 16 threads
+
+Non-default parameters:
+TimeLimit  3600
+MIPGap  0
+
+Optimize a model with 199 rows, 110 columns and 630 nonzeros
+Model fingerprint: 0x5cdaeca1
+Variable types: 20 continuous, 90 integer (90 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 5e+03]
+  Objective range  [1e+01, 7e+01]
+  Bounds range     [1e+00, 2e+03]
+  RHS range        [1e+00, 4e+03]
+Found heuristic solution: objective 352.8424000
+Presolve removed 146 rows and 32 columns
+Presolve time: 0.00s
+Presolved: 53 rows, 78 columns, 470 nonzeros
+Variable types: 10 continuous, 68 integer (68 binary)
+
+Root relaxation: objective 2.475631e+02, 25 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+*    0     0               0     247.5631000  247.56310  0.00%     -    0s
+
+Explored 1 nodes (25 simplex iterations) in 0.01 seconds (0.00 work units)
+Thread count was 16 (of 16 available processors)
+
+Solution count 2: 247.563 352.842 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 2.475631000000e+02, best bound 2.475631000000e+02, gap 0.0000%

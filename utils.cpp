@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -23,28 +24,9 @@ void imprimirInstanciaEVRP(const InstanciaEVRP &instancia) {
   cout << "Tipo: " << instancia.tipo << endl;
   cout << "Veiculos: " << instancia.veiculos << endl;
   cout << "Dimensao: " << instancia.dimensao << endl;
-  cout << "Estacoes: " << instancia.estacoesTotal << endl;
+  cout << "Estacoes: " << instancia.estacoes << endl;
   cout << "Capacidade: " << instancia.capacidade << endl;
   cout << "Deposito: " << instancia.idDeposito << endl;
-
-  cout << "\nTotal de Nos lidos: " << instancia.nos.size() << endl;
-  if (!instancia.nos.empty()) {
-    cout << "  -> Primeiro no: ";
-    imprimirNo(instancia.nos[0]);
-    cout << endl;
-  }
-
-  cout << "\nTotal de Demandas lidas: " << instancia.demandas.size() << endl;
-  if (instancia.demandas.size() > 1) {
-    cout << "  -> Segunda demanda: ";
-    imprimirDemandaNo(instancia.demandas[1]);
-    cout << endl;
-  }
-
-  cout << "\nTotal de Estacoes (IDs): " << instancia.idEstacoes.size() << endl;
-  if (!instancia.idEstacoes.empty()) {
-    cout << "  -> ID da primeira estacao: " << instancia.idEstacoes[0] << endl;
-  }
   cout << "--------------------------------" << endl;
 }
 
@@ -117,7 +99,8 @@ bool carregarInstancia(const string &nomeArquivo, InstanciaEVRP &instancia) {
       } else if (chave == "DIMENSION") {
         ssValor >> instancia.dimensao;
       } else if (chave == "STATIONS") {
-        ssValor >> instancia.estacoesTotal;
+        ssValor >> instancia.estacoes;
+        instancia.estacoesTotal = instancia.estacoes * 2;
       } else if (chave == "CAPACITY") {
         ssValor >> instancia.capacidade;
       } else if (chave == "ENERGY_CAPACITY") {
@@ -161,4 +144,256 @@ double calcularDistancia(const No &a, const No &b) {
   double dx = a.x - b.x;
   double dy = a.y - b.y;
   return sqrt(dx * dx + dy * dy);
+}
+
+No getNoByIndex(const InstanciaEVRP &instancia, int idx) {
+  int n = instancia.dimensao;
+  int estacoes = instancia.estacoes;
+
+  if (idx < n) {
+    return instancia.nos[idx];
+  }
+
+  int offset = idx - n;
+
+  int estacaoOriginalIdx = offset % estacoes;
+  int idEstacaoOriginal = instancia.idEstacoes[estacaoOriginalIdx];
+
+  for (const auto &no : instancia.nos) {
+    if (no.id == idEstacaoOriginal) {
+      return no;
+    }
+  }
+
+  cerr << "ERRO: Estacao com ID " << idEstacaoOriginal << " nao encontrada nos nos!" << endl;
+  throw runtime_error("Estacao nao encontrada");
+}
+
+int getDemandaByNodeId(const InstanciaEVRP &instancia, int nodeId) {
+  for (const auto &d : instancia.demandas) {
+    if (d.id == nodeId) {
+      return d.demanda;
+    }
+  }
+  return 0;
+}
+
+void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
+  string lpFilename = nomeArquivo + ".lp";
+  ofstream lpFile(lpFilename);
+
+  if (!lpFile.is_open()) {
+    cerr << "Erro ao criar arquivo .lp" << endl;
+    return;
+  }
+
+  cout << "Gerando arquivo LP: " << lpFilename << "..." << endl;
+
+  int n = instancia.dimensao;
+  int m = instancia.estacoesTotal;
+  int numClientes = n - 1;
+  int totalNos = n + m;
+
+  double h = instancia.consumoEnergia;
+  double Q = instancia.capacidadeEnergia;
+  double C = instancia.capacidade;
+
+  vector<vector<double>> dist(totalNos, vector<double>(totalNos, 0.0));
+  for (int i = 0; i < totalNos; i++) {
+    for (int j = 0; j < totalNos; j++) {
+      No noI = getNoByIndex(instancia, i);
+      No noJ = getNoByIndex(instancia, j);
+      dist[i][j] = calcularDistancia(noI, noJ);
+    }
+  }
+
+  double BigM_battery = 2.0 * Q;
+  double BigM_capacity = 2.0 * C;
+
+  lpFile << fixed << setprecision(4);
+
+  lpFile << "Minimize" << endl;
+  lpFile << " obj: ";
+
+  bool first = true;
+  for (int i = 0; i < totalNos; i++) {
+    for (int j = 0; j < totalNos; j++) {
+      if (i != j) {
+        if (!first)
+          lpFile << " + ";
+        lpFile << dist[i][j] << " x_" << i << "_" << j;
+        first = false;
+      }
+    }
+  }
+  lpFile << endl;
+
+  lpFile << "Subject To" << endl;
+
+  for (int i = 1; i <= numClientes; i++) {
+    first = true;
+    lpFile << " c2_" << i << ": ";
+    for (int j = 0; j < totalNos; j++) {
+      if (i != j) {
+        if (!first)
+          lpFile << " + ";
+        lpFile << "x_" << i << "_" << j;
+        first = false;
+      }
+    }
+    lpFile << " = 1" << endl;
+  }
+
+  lpFile << endl;
+
+  for (int s = 0; s < m; s++) {
+    int idx = n + s;
+    first = true;
+    lpFile << " c3_" << s + 1 << ": ";
+    for (int j = 0; j < totalNos; j++) {
+      if (idx != j) {
+        if (!first)
+          lpFile << " + ";
+        lpFile << "x_" << idx << "_" << j;
+        first = false;
+      }
+    }
+    lpFile << " <= 1" << endl;
+  }
+
+  lpFile << endl;
+
+  for (int j = 1; j < totalNos; j++) {
+    bool first = true;
+    lpFile << " c4_" << j << ": ";
+    for (int i = 0; i < totalNos; i++) {
+      if (i != j) {
+        if (!first) lpFile << " +";
+        lpFile << " x_" << j << "_" << i;
+        first = false;
+      }
+    }
+
+    for (int i = 0; i < totalNos; i++) {
+      if (i != j) {
+        lpFile << " - x_" << i << "_" << j;
+      }
+    }
+
+    lpFile << " = 0" << endl;
+  }
+
+  lpFile << endl;
+
+  // ==========================================
+  // Constraint (5): Desgaste da bateria (Cliente -> Cliente/Estacao)
+  // Logic: y_j <= y_i - h*dist + Q(1-x)
+  // Applies where source 'i' is a Customer (Index 1 to numClientes)
+  // ==========================================
+  for (int i = 1; i <= numClientes; i++) {
+    for (int j = 1; j < totalNos; j++) {
+      if (i != j) {
+        double coef = h * dist[i][j] + Q;
+
+        lpFile << " c5_" << i << "_" << j << "a: y_" << j << " >= 0" << endl;
+        lpFile << " c5_" << i << "_" << j << "b: y_" << j << " - y_" << i << " + " << coef << " x_" << i << "_" << j << " <= " << Q << endl;
+      }
+    }
+  }
+
+  lpFile << endl;
+
+  // ==========================================
+  // Constraint (6): Bateria (Origem = Deposito OU Estacao)
+  // Logic: y_j <= Q - h*dist*x
+  // Applies where source 'i' is Depot (0) OR Station
+  // ==========================================
+  
+  // Create list of recharging sources: Depot + Stations
+  vector<int> rechargingSources;
+  rechargingSources.push_back(0); // Add Depot
+  for (int k = totalNos - m; k < totalNos; k++) {
+      rechargingSources.push_back(k); // Add Stations
+  }
+
+  for (int j = 1; j < totalNos; j++) {
+    lpFile << " c6_" << j << "_a: y_" << j << " >= 0" << endl;
+
+    for (int i : rechargingSources) {
+      if (i != j) {
+        double custo = h * dist[i][j];
+        
+        lpFile << " c6_" << j << "_" << i << "_b: y_" << j 
+               << " + " << custo << " x_" << i << "_" << j 
+               << " <= " << Q << endl;
+      }
+    }
+  }
+
+  lpFile << endl;
+
+  // ==========================================
+  // Constraint (7): Capacidade / Carga (Todo 'i' para todo 'j')
+  // Logic: u_j <= u_i - q_j*x + C(1-x)
+  // Applies to ALL nodes 'i' (Depot, Customers, Stations)
+  // ==========================================
+  for (int j = 1; j < totalNos; j++) {
+    lpFile << " c7_" << j << "_a: u_" << j << " >= 0" << endl;
+    
+    // FIXED: i loops from 0 to totalNos (includes Depot, Customers, Stations)
+    for (int i = 0; i < totalNos; i++) {
+      if (i != j) {
+        
+        // Get demand of the DESTINATION j
+        No noJ = getNoByIndex(instancia, j);
+        double q_dest = getDemandaByNodeId(instancia, noJ.id);
+        
+        // Use BigM_capacity (which is 2*C) or just C. 
+        // Using C is tighter and mathematically sufficient, but we stick to BigM_capacity 
+        // if you prefer the loose bound, or simply C for standard formulation.
+        // Standard VRP Formula: u_j - u_i + (C + q_j) * x_ij <= C
+        double valC = BigM_capacity; // Using your variable for consistency
+
+        double x_coefficient = valC + q_dest;
+
+        lpFile << " c7_" << j << "_" << i << "_b: ";
+        lpFile << "u_" << j << " - u_" << i << " + " 
+               << x_coefficient << " x_" << i << "_" << j 
+               << " <= " << valC << endl;
+      }
+    }
+  }
+
+  lpFile << endl;
+
+  // Constraint (8): Boundary conditions
+  lpFile << " c8a: u_0 >= 0" << endl;
+  lpFile << " c8b: u_0 <= " << C << endl;
+
+  // ---------------------------------------------------------
+  // 3. BOUNDS
+  // ---------------------------------------------------------
+  lpFile << "Bounds" << endl;
+
+  // Variaveis continuas (Y e U)
+  for (int i = 0; i < totalNos; i++) {
+    lpFile << " 0 <= y_" << i << " <= " << Q << endl;
+    lpFile << " 0 <= u_" << i << " <= " << C << endl;
+  }
+
+  // ---------------------------------------------------------
+  // 4. BINARIES
+  // ---------------------------------------------------------
+  lpFile << "Binary" << endl;
+  for (int i = 0; i < totalNos; i++) {
+    for (int j = 0; j < totalNos; j++) {
+      if (i != j) {
+        lpFile << " x_" << i << "_" << j << endl;
+      }
+    }
+  }
+
+  lpFile << "End" << endl;
+  lpFile.close();
+  cout << "Arquivo LP gerado com sucesso." << endl;
 }

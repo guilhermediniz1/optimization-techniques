@@ -1,0 +1,23 @@
+Instancia: test
+
+LB (Lower Bound): 301.289600
+UB (Upper Bound): 301.289600
+GAP (%): 0.000000
+TEMPO (seg): 0.011445
+Status: Optimal
+
+Rotas:
+Rota 1: 0 3 0
+  Distancia: 70.710678
+  Carga: 1200.000000
+
+Rota 2: 0 E1 1 2 0
+  Distancia: 97.281163
+  Carga: 1000.000000
+
+Rota 3: 0 E2 5 E4 4 0
+  Distancia: 166.771284
+  Carga: 2000.000000
+
+Numero de rotas: 3
+Distancia total: 301.289600

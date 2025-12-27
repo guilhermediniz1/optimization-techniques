@@ -1,5 +1,0 @@
-Instancia: X-n214-k11
-
-Status: Sem solucao no tempo limite
-TEMPO (seg): 3601.147173
-LB (Lower Bound): 6318.617003
