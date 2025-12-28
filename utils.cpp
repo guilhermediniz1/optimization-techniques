@@ -207,9 +207,6 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     }
   }
 
-  double BigM_battery = 2.0 * Q;
-  double BigM_capacity = 2.0 * C;
-
   lpFile << fixed << setprecision(4);
 
   lpFile << "Minimize" << endl;
@@ -348,18 +345,13 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
         No noJ = getNoByIndex(instancia, j);
         double q_dest = getDemandaByNodeId(instancia, noJ.id);
         
-        // Use BigM_capacity (which is 2*C) or just C. 
-        // Using C is tighter and mathematically sufficient, but we stick to BigM_capacity 
-        // if you prefer the loose bound, or simply C for standard formulation.
         // Standard VRP Formula: u_j - u_i + (C + q_j) * x_ij <= C
-        double valC = BigM_capacity; // Using your variable for consistency
-
-        double x_coefficient = valC + q_dest;
+        double x_coefficient = C + q_dest;
 
         lpFile << " c7_" << j << "_" << i << "_b: ";
         lpFile << "u_" << j << " - u_" << i << " + " 
                << x_coefficient << " x_" << i << "_" << j 
-               << " <= " << valC << endl;
+               << " <= " << C << endl;
       }
     }
   }

@@ -1,0 +1,29 @@
+Instancia: E-n22-k4
+
+LB (Lower Bound): 296.842323
+UB (Upper Bound): 392.473900
+GAP (%): 24.366353
+TEMPO (seg): 3606.499420
+Status: AbortTimeLim
+Valor Otimo Conhecido: 384.678035
+GAP vs Otimo (%): 2.026595
+
+Rotas:
+Rota 1: 0 14 17 21 19 13 0
+  Distancia: 88.943610
+  Carga: 5800.000000
+
+Rota 2: 0 15 18 20 16 0
+  Distancia: 82.377768
+  Carga: 5700.000000
+
+Rota 3: 0 E7 9 7 5 2 1 6 0
+  Distancia: 155.946445
+  Carga: 5600.000000
+
+Rota 4: 0 E14 12 10 8 3 4 11 0
+  Distancia: 131.102876
+  Carga: 5400.000000
+
+Numero de rotas: 4
+Distancia total: 392.473900
