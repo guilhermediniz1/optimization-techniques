@@ -186,14 +186,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
 
                     solFile << "Rota " << numRota << ": ";
                     for (size_t i = 0; i < rota.size(); i++) {
-                        int no = rota[i];
-                        if (no == 0) {
-                            solFile << "0";
-                        } else if (no <= numClientes) {
-                            solFile << no;
-                        } else {
-                            solFile << "E" << (no - n + 1);
-                        }
+                        solFile << rota[i];
                         if (i < rota.size() - 1) {
                             solFile << " ";
                         }
