@@ -1,5 +1,5 @@
 *.exe
 out.*
 main
-
-modelos/
+lp/
+*.log

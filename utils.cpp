@@ -288,7 +288,7 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
   // Applies where source 'i' is a Customer (Index 1 to numClientes)
   // ==========================================
   for (int i = 1; i <= numClientes; i++) {
-    for (int j = 1; j < totalNos; j++) {
+    for (int j = 0; j < totalNos; j++) {
       if (i != j) {
         double coef = h * dist[i][j] + Q;
 
@@ -296,20 +296,6 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
         lpFile << " c5_" << i << "_" << j << "b: y_" << j << " - y_" << i << " + " << coef << " x_" << i << "_" << j << " <= " << Q << endl;
       }
     }
-  }
-
-  lpFile << endl;
-
-  // ==========================================
-  // Constraint (5c): Energia suficiente para retornar ao deposito
-  // Logic: y_i >= h*dist[i][0] quando x_i_0 = 1
-  // Garante que ao sair de um cliente para o deposito, a energia seja suficiente
-  // Reformulado: y_i - h*dist[i][0]*x_i_0 >= 0
-  // Ou equivalente: y_i >= h*dist[i][0]*x_i_0
-  // ==========================================
-  for (int i = 1; i <= numClientes; i++) {
-    double consumoRetorno = h * dist[i][0];
-    lpFile << " c5_" << i << "_0_ret: y_" << i << " - " << consumoRetorno << " x_" << i << "_0 >= 0" << endl;
   }
 
   lpFile << endl;
