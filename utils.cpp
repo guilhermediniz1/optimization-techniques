@@ -301,6 +301,20 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
   lpFile << endl;
 
   // ==========================================
+  // Constraint (5c): Energia suficiente para retornar ao deposito
+  // Logic: y_i >= h*dist[i][0] quando x_i_0 = 1
+  // Garante que ao sair de um cliente para o deposito, a energia seja suficiente
+  // Reformulado: y_i - h*dist[i][0]*x_i_0 >= 0
+  // Ou equivalente: y_i >= h*dist[i][0]*x_i_0
+  // ==========================================
+  for (int i = 1; i <= numClientes; i++) {
+    double consumoRetorno = h * dist[i][0];
+    lpFile << " c5_" << i << "_0_ret: y_" << i << " - " << consumoRetorno << " x_" << i << "_0 >= 0" << endl;
+  }
+
+  lpFile << endl;
+
+  // ==========================================
   // Constraint (6): Bateria (Origem = Deposito OU Estacao)
   // Logic: y_j <= Q - h*dist*x
   // Applies where source 'i' is Depot (0) OR Station

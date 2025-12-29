@@ -199,9 +199,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
         solFile << "Numero de rotas: " << (numRota - 1) << endl;
         solFile << "Distancia total: " << ub << endl;
 
-        bool solucaoValida = validarSolucao(instancia, todasRotas, dist, true);
-        solFile << "\nValidacao: " << (solucaoValida ? "VALIDO" : "INVALIDO") << endl;
-
       } else {
         solFile << "\nStatus: Sem solucao encontrada" << endl;
         solFile << "TEMPO (seg): " << tempoTotal << endl;

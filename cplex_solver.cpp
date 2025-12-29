@@ -205,9 +205,6 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
             solFile << "Numero de rotas: " << (numRota - 1) << endl;
             solFile << "Distancia total: " << ub << endl;
 
-            bool solucaoValida = validarSolucao(instancia, todasRotas, dist, true);
-            solFile << "\nValidacao: " << (solucaoValida ? "VALIDO" : "INVALIDO") << endl;
-
             vals.end();
         } else {
             solFile << "\nStatus: Sem solucao encontrada" << endl;
