@@ -46,4 +46,14 @@ No getNoByIndex(const InstanciaEVRP &instancia, int idx);
 void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo);
 int getDemandaByNodeId(const InstanciaEVRP &instancia, int nodeId);
 
+bool isEstacao(const InstanciaEVRP &instancia, int idx);
+bool validarRota(const InstanciaEVRP &instancia, const vector<int> &rota,
+                 const vector<vector<double>> &dist, bool verbose = true);
+bool validarSolucao(const InstanciaEVRP &instancia, const vector<vector<int>> &rotas,
+                    const vector<vector<double>> &dist, bool verbose = true);
+
+bool carregarSolucao(const string &nomeArquivo, vector<vector<int>> &rotas);
+bool verificarSolucaoArquivo(const InstanciaEVRP &instancia, const string &nomeInstancia,
+                              const string &solver);
+
 #endif

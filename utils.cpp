@@ -389,3 +389,272 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
   lpFile.close();
   cout << "Arquivo LP gerado com sucesso." << endl;
 }
+
+bool isEstacao(const InstanciaEVRP &instancia, int idx) {
+  int n = instancia.dimensao;
+
+  // O deposito (idx 0) tambem recarrega a bateria
+  if (idx == 0) {
+    return true;
+  }
+
+  // Indices >= n sao estacoes de recarga (copias)
+  if (idx >= n) {
+    return true;
+  }
+
+  // Verifica se o no original eh uma estacao
+  int nodeId = instancia.nos[idx].id;
+  for (int idEstacao : instancia.idEstacoes) {
+    if (nodeId == idEstacao) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool validarRota(const InstanciaEVRP &instancia, const vector<int> &rota,
+                 const vector<vector<double>> &dist, bool verbose) {
+  if (rota.size() < 2) {
+    if (verbose) {
+      cerr << "Erro: Rota muito curta (menos de 2 nos)" << endl;
+    }
+    return false;
+  }
+
+  // Verifica se a rota comeca e termina no deposito
+  if (rota.front() != 0 || rota.back() != 0) {
+    if (verbose) {
+      cerr << "Erro: Rota deve comecar e terminar no deposito (0)" << endl;
+      cerr << "  Inicio: " << rota.front() << ", Fim: " << rota.back() << endl;
+    }
+    return false;
+  }
+
+  double energia = instancia.capacidadeEnergia;
+  double capacidade = instancia.capacidade;
+  double distanciaTotal = 0.0;
+  double h = instancia.consumoEnergia;
+
+  bool valido = true;
+
+  for (size_t i = 0; i < rota.size() - 1; i++) {
+    int de = rota[i];
+    int para = rota[i + 1];
+
+    // Calcula consumo de energia para este trecho
+    double consumoEnergia = h * dist[de][para];
+    energia -= consumoEnergia;
+    distanciaTotal += dist[de][para];
+
+    // Verifica energia antes de chegar ao destino
+    if (energia < -0.0001) {
+      if (verbose) {
+        cerr << "Erro: Energia abaixo de 0 no trecho " << de << " -> " << para << endl;
+        cerr << "  Energia restante: " << energia << endl;
+        cerr << "  Consumo do trecho: " << consumoEnergia << endl;
+        cerr << "  Distancia do trecho: " << dist[de][para] << endl;
+      }
+      valido = false;
+    }
+
+    // Subtrai demanda do destino (se for cliente)
+    No noDestino = getNoByIndex(instancia, para);
+    int demanda = getDemandaByNodeId(instancia, noDestino.id);
+    capacidade -= demanda;
+
+    // Verifica capacidade
+    if (capacidade < -0.0001) {
+      if (verbose) {
+        cerr << "Erro: Capacidade excedida ao visitar no " << para << endl;
+        cerr << "  Capacidade restante: " << capacidade << endl;
+        cerr << "  Demanda do no: " << demanda << endl;
+      }
+      valido = false;
+    }
+
+    // Recarrega bateria se destino eh estacao ou deposito
+    if (isEstacao(instancia, para)) {
+      energia = instancia.capacidadeEnergia;
+    }
+
+    // Recarrega capacidade se retornar ao deposito
+    if (para == 0) {
+      capacidade = instancia.capacidade;
+    }
+  }
+
+  if (verbose && valido) {
+    cout << "  Rota valida! Distancia: " << distanciaTotal << endl;
+  }
+
+  return valido;
+}
+
+bool validarSolucao(const InstanciaEVRP &instancia, const vector<vector<int>> &rotas,
+                    const vector<vector<double>> &dist, bool verbose) {
+  if (rotas.empty()) {
+    if (verbose) {
+      cerr << "Erro: Solucao sem rotas" << endl;
+    }
+    return false;
+  }
+
+  bool todasValidas = true;
+  double distanciaTotal = 0.0;
+  int numClientes = instancia.dimensao - 1;
+  vector<bool> clienteVisitado(numClientes + 1, false);
+
+  if (verbose) {
+    cout << "\n=== Validando Solucao ===" << endl;
+    cout << "Numero de rotas: " << rotas.size() << endl;
+  }
+
+  for (size_t r = 0; r < rotas.size(); r++) {
+    if (verbose) {
+      cout << "\nValidando Rota " << (r + 1) << ": ";
+      for (int no : rotas[r]) {
+        cout << no << " ";
+      }
+      cout << endl;
+    }
+
+    if (!validarRota(instancia, rotas[r], dist, verbose)) {
+      todasValidas = false;
+    }
+
+    // Calcula distancia e marca clientes visitados
+    for (size_t i = 0; i < rotas[r].size() - 1; i++) {
+      distanciaTotal += dist[rotas[r][i]][rotas[r][i + 1]];
+    }
+
+    // Marca clientes visitados (indices 1 a numClientes)
+    for (int no : rotas[r]) {
+      if (no >= 1 && no <= numClientes) {
+        if (clienteVisitado[no]) {
+          if (verbose) {
+            cerr << "Erro: Cliente " << no << " visitado mais de uma vez!" << endl;
+          }
+          todasValidas = false;
+        }
+        clienteVisitado[no] = true;
+      }
+    }
+  }
+
+  // Verifica se todos os clientes foram visitados
+  for (int i = 1; i <= numClientes; i++) {
+    if (!clienteVisitado[i]) {
+      if (verbose) {
+        cerr << "Erro: Cliente " << i << " nao foi visitado!" << endl;
+      }
+      todasValidas = false;
+    }
+  }
+
+  if (verbose) {
+    cout << "\n=== Resumo da Validacao ===" << endl;
+    cout << "Distancia total: " << distanciaTotal << endl;
+    cout << "Status: " << (todasValidas ? "VALIDO" : "INVALIDO") << endl;
+  }
+
+  return todasValidas;
+}
+
+bool carregarSolucao(const string &nomeArquivo, vector<vector<int>> &rotas) {
+  ifstream arquivo(nomeArquivo);
+
+  if (!arquivo.is_open()) {
+    cerr << "Erro: Nao foi possivel abrir o arquivo de solucao " << nomeArquivo << endl;
+    return false;
+  }
+
+  rotas.clear();
+  string linha;
+  bool secaoRotas = false;
+
+  while (getline(arquivo, linha)) {
+    // Procura pelo inicio da secao de rotas
+    if (linha.find("Rotas:") != string::npos) {
+      secaoRotas = true;
+      continue;
+    }
+
+    // Para ao encontrar linhas de resumo ou fim das rotas
+    if (secaoRotas && (linha.find("Numero de rotas:") != string::npos ||
+                       linha.find("Distancia total:") != string::npos)) {
+      break;
+    }
+
+    // Ignora linhas de detalhes (Distancia:, Carga:)
+    if (linha.find("Distancia:") != string::npos ||
+        linha.find("Carga:") != string::npos) {
+      continue;
+    }
+
+    // Parse das rotas: "Rota X: 0 1 2 3 0"
+    if (secaoRotas && linha.find("Rota") != string::npos) {
+      size_t pos = linha.find(":");
+      if (pos != string::npos) {
+        string nosStr = linha.substr(pos + 1);
+        istringstream iss(nosStr);
+        vector<int> rota;
+        int no;
+        while (iss >> no) {
+          rota.push_back(no);
+        }
+        if (!rota.empty()) {
+          rotas.push_back(rota);
+        }
+      }
+    }
+  }
+
+  arquivo.close();
+  return !rotas.empty();
+}
+
+bool verificarSolucaoArquivo(const InstanciaEVRP &instancia, const string &nomeInstancia,
+                              const string &solver) {
+  string solverUpper = (solver == "gurobi") ? "GUROBI" : "CPLEX";
+  string arquivoSolucao = "solucoes/" + nomeInstancia + "_" + solverUpper + ".txt";
+
+  cout << "=== Verificacao de Solucao ===" << endl;
+  cout << "Instancia: " << nomeInstancia << endl;
+  cout << "Solver: " << solverUpper << endl;
+  cout << "Arquivo: " << arquivoSolucao << endl;
+  cout << endl;
+
+  vector<vector<int>> rotas;
+  if (!carregarSolucao(arquivoSolucao, rotas)) {
+    cerr << "Erro: Nao foi possivel carregar a solucao do arquivo" << endl;
+    return false;
+  }
+
+  cout << "Rotas carregadas: " << rotas.size() << endl;
+  for (size_t i = 0; i < rotas.size(); i++) {
+    cout << "Rota " << (i + 1) << ": ";
+    for (int no : rotas[i]) {
+      cout << no << " ";
+    }
+    cout << endl;
+  }
+  cout << endl;
+
+  // Calcula matriz de distancias
+  int n = instancia.dimensao;
+  int m = instancia.estacoesTotal;
+  int totalNos = n + m;
+
+  vector<vector<double>> dist(totalNos, vector<double>(totalNos, 0.0));
+  for (int i = 0; i < totalNos; i++) {
+    for (int j = 0; j < totalNos; j++) {
+      No noI = getNoByIndex(instancia, i);
+      No noJ = getNoByIndex(instancia, j);
+      dist[i][j] = calcularDistancia(noI, noJ);
+    }
+  }
+
+  return validarSolucao(instancia, rotas, dist, true);
+}

@@ -134,6 +134,7 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
         // Extrai rotas
         int numRota = 1;
         solFile << "\nRotas:" << endl;
+        vector<vector<int>> todasRotas;
 
         for (int start = 1; start < totalNos; start++) {
           if (xVal[0][start] > 0.5) {
@@ -190,12 +191,16 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
             solFile << "  Carga: " << cargaRota << endl;
             solFile << endl;
 
+            todasRotas.push_back(rota);
             numRota++;
           }
         }
 
         solFile << "Numero de rotas: " << (numRota - 1) << endl;
         solFile << "Distancia total: " << ub << endl;
+
+        bool solucaoValida = validarSolucao(instancia, todasRotas, dist, true);
+        solFile << "\nValidacao: " << (solucaoValida ? "VALIDO" : "INVALIDO") << endl;
 
       } else {
         solFile << "\nStatus: Sem solucao encontrada" << endl;
