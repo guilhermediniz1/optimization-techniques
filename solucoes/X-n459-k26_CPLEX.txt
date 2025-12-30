@@ -1,0 +1,5 @@
+Instancia: X-n459-k26
+
+Status: Sem solucao encontrada
+TEMPO (seg): 3600.645525
+Status CPLEX: AbortTimeLim

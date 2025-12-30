@@ -1,0 +1,41 @@
+Instancia: E-n76-k7
+
+LB (Lower Bound): 540.993090
+UB (Upper Bound): 736.330095
+GAP (%): 26.528456
+TEMPO (seg): 3601.307882
+Status: AbortTimeLim
+Valor Otimo Conhecido: 723.367517
+GAP vs Otimo (%): 1.791977
+
+Rotas:
+Rota 1: 0 12 58 10 31 55 87 25 50 18 24 49 16 51 0
+  Distancia: 176.587407
+  Carga: 207.000000
+
+Rota 2: 0 17 40 3 44 32 9 39 72 0
+  Distancia: 70.114848
+  Carga: 155.000000
+
+Rota 3: 0 23 56 41 43 85 42 64 22 62 73 1 63 33 6 0
+  Distancia: 190.014457
+  Carga: 215.000000
+
+Rota 4: 0 26 7 35 8 19 54 13 27 52 46 34 0
+  Distancia: 78.390210
+  Carga: 184.000000
+
+Rota 5: 0 38 65 66 11 93 84 59 14 53 67 0
+  Distancia: 165.185772
+  Carga: 214.000000
+
+Rota 6: 0 57 15 37 82 5 36 69 71 60 70 20 91 29 45 4 0
+  Distancia: 184.436789
+  Carga: 190.000000
+
+Rota 7: 0 75 30 74 88 28 61 21 47 48 2 68 0
+  Distancia: 127.395388
+  Carga: 199.000000
+
+Numero de rotas: 7
+Distancia total: 736.330095

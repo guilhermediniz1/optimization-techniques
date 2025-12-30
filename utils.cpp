@@ -165,7 +165,8 @@ No getNoByIndex(const InstanciaEVRP &instancia, int idx) {
     }
   }
 
-  cerr << "ERRO: Estacao com ID " << idEstacaoOriginal << " nao encontrada nos nos!" << endl;
+  cerr << "ERRO: Estacao com ID " << idEstacaoOriginal
+       << " nao encontrada nos nos!" << endl;
   throw runtime_error("Estacao nao encontrada");
 }
 
@@ -207,7 +208,7 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     }
   }
 
-  lpFile << fixed << setprecision(4);
+  lpFile << fixed << setprecision(6);
 
   lpFile << "Minimize" << endl;
   lpFile << " obj: ";
@@ -265,7 +266,8 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     lpFile << " c4_" << j << ": ";
     for (int i = 0; i < totalNos; i++) {
       if (i != j) {
-        if (!first) lpFile << " +";
+        if (!first)
+          lpFile << " +";
         lpFile << " x_" << j << "_" << i;
         first = false;
       }
@@ -293,7 +295,9 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
         double coef = h * dist[i][j] + Q;
 
         lpFile << " c5_" << i << "_" << j << "a: y_" << j << " >= 0" << endl;
-        lpFile << " c5_" << i << "_" << j << "b: y_" << j << " - y_" << i << " + " << coef << " x_" << i << "_" << j << " <= " << Q << endl;
+        lpFile << " c5_" << i << "_" << j << "b: y_" << j << " - y_" << i
+               << " + " << coef << " x_" << i << "_" << j << " <= " << Q
+               << endl;
       }
     }
   }
@@ -305,12 +309,12 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
   // Logic: y_j <= Q - h*dist*x
   // Applies where source 'i' is Depot (0) OR Station
   // ==========================================
-  
+
   // Create list of recharging sources: Depot + Stations
   vector<int> rechargingSources;
   rechargingSources.push_back(0); // Add Depot
   for (int k = totalNos - m; k < totalNos; k++) {
-      rechargingSources.push_back(k); // Add Stations
+    rechargingSources.push_back(k); // Add Stations
   }
 
   for (int j = 1; j < totalNos; j++) {
@@ -319,10 +323,9 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     for (int i : rechargingSources) {
       if (i != j) {
         double custo = h * dist[i][j];
-        
-        lpFile << " c6_" << j << "_" << i << "_b: y_" << j 
-               << " + " << custo << " x_" << i << "_" << j 
-               << " <= " << Q << endl;
+
+        lpFile << " c6_" << j << "_" << i << "_b: y_" << j << " + " << custo
+               << " x_" << i << "_" << j << " <= " << Q << endl;
       }
     }
   }
@@ -336,22 +339,21 @@ void exportEVRPtoLP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
   // ==========================================
   for (int j = 1; j < totalNos; j++) {
     lpFile << " c7_" << j << "_a: u_" << j << " >= 0" << endl;
-    
+
     // FIXED: i loops from 0 to totalNos (includes Depot, Customers, Stations)
     for (int i = 0; i < totalNos; i++) {
       if (i != j) {
-        
+
         // Get demand of the DESTINATION j
         No noJ = getNoByIndex(instancia, j);
         double q_dest = getDemandaByNodeId(instancia, noJ.id);
-        
+
         // Standard VRP Formula: u_j - u_i + (C + q_j) * x_ij <= C
         double x_coefficient = C + q_dest;
 
         lpFile << " c7_" << j << "_" << i << "_b: ";
-        lpFile << "u_" << j << " - u_" << i << " + " 
-               << x_coefficient << " x_" << i << "_" << j 
-               << " <= " << C << endl;
+        lpFile << "u_" << j << " - u_" << i << " + " << x_coefficient << " x_"
+               << i << "_" << j << " <= " << C << endl;
       }
     }
   }
@@ -451,7 +453,8 @@ bool validarRota(const InstanciaEVRP &instancia, const vector<int> &rota,
     // Verifica energia antes de chegar ao destino
     if (energia < -0.0001) {
       if (verbose) {
-        cerr << "Erro: Energia abaixo de 0 no trecho " << de << " -> " << para << endl;
+        cerr << "Erro: Energia abaixo de 0 no trecho " << de << " -> " << para
+             << endl;
         cerr << "  Energia restante: " << energia << endl;
         cerr << "  Consumo do trecho: " << consumoEnergia << endl;
         cerr << "  Distancia do trecho: " << dist[de][para] << endl;
@@ -492,7 +495,8 @@ bool validarRota(const InstanciaEVRP &instancia, const vector<int> &rota,
   return valido;
 }
 
-bool validarSolucao(const InstanciaEVRP &instancia, const vector<vector<int>> &rotas,
+bool validarSolucao(const InstanciaEVRP &instancia,
+                    const vector<vector<int>> &rotas,
                     const vector<vector<double>> &dist, bool verbose) {
   if (rotas.empty()) {
     if (verbose) {
@@ -534,7 +538,8 @@ bool validarSolucao(const InstanciaEVRP &instancia, const vector<vector<int>> &r
       if (no >= 1 && no <= numClientes) {
         if (clienteVisitado[no]) {
           if (verbose) {
-            cerr << "Erro: Cliente " << no << " visitado mais de uma vez!" << endl;
+            cerr << "Erro: Cliente " << no << " visitado mais de uma vez!"
+                 << endl;
           }
           todasValidas = false;
         }
@@ -566,7 +571,8 @@ bool carregarSolucao(const string &nomeArquivo, vector<vector<int>> &rotas) {
   ifstream arquivo(nomeArquivo);
 
   if (!arquivo.is_open()) {
-    cerr << "Erro: Nao foi possivel abrir o arquivo de solucao " << nomeArquivo << endl;
+    cerr << "Erro: Nao foi possivel abrir o arquivo de solucao " << nomeArquivo
+         << endl;
     return false;
   }
 
@@ -615,10 +621,12 @@ bool carregarSolucao(const string &nomeArquivo, vector<vector<int>> &rotas) {
   return !rotas.empty();
 }
 
-bool verificarSolucaoArquivo(const InstanciaEVRP &instancia, const string &nomeInstancia,
-                              const string &solver) {
+bool verificarSolucaoArquivo(const InstanciaEVRP &instancia,
+                             const string &nomeInstancia,
+                             const string &solver) {
   string solverUpper = (solver == "gurobi") ? "GUROBI" : "CPLEX";
-  string arquivoSolucao = "solucoes/" + nomeInstancia + "_" + solverUpper + ".txt";
+  string arquivoSolucao =
+      "solucoes/" + nomeInstancia + "_" + solverUpper + ".txt";
 
   cout << "=== Verificacao de Solucao ===" << endl;
   cout << "Instancia: " << nomeInstancia << endl;

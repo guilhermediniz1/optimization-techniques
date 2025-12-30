@@ -1,0 +1,5 @@
+Instancia: X-n214-k11
+
+Status: Sem solucao encontrada
+TEMPO (seg): 3600.315424
+Status CPLEX: AbortTimeLim
