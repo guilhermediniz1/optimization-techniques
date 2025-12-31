@@ -1,0 +1,42 @@
+## Scenario configuration for irace - EVRP Simulated Annealing tuning
+
+## Directory where the programs will be run (relative to tuning/)
+execDir = "./"
+
+## Parameter file
+parameterFile = "./parameters.txt"
+
+## Training instances directory (relative to tuning/)
+trainInstancesDir = "../dataset"
+
+## File with list of training instances
+trainInstancesFile = "./instances-list.txt"
+
+## Target runner script
+targetRunner = "./target-runner"
+
+## Maximum number of runs (budget for experiments)
+## Adjust based on available time - more experiments = better tuning
+maxExperiments = 2000
+
+## Or use maxTime for time-based budget (in seconds)
+## Each run uses 30s, so 500 experiments ~= 4+ hours
+# maxTime = 14400
+
+## Parallel execution (set to number of CPU cores)
+parallel = 12
+
+## Random seed for reproducibility
+seed = 42
+
+## Enable elitist mode (keeps best configurations)
+elitist = 1
+
+## First test after this many instances
+firstTest = 3
+
+## Test every N instances after firstTest
+eachTest = 1
+
+## Confidence level for statistical tests
+confidence = 0.95

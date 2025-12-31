@@ -1,0 +1,77 @@
+#!/bin/bash
+###############################################################################
+# target-runner for irace - EVRP Simulated Annealing
+#
+# PARAMETERS:
+# $1 is the candidate configuration number
+# $2 is the instance ID
+# $3 is the seed
+# $4 is the instance name
+# The rest ($* after `shift 4') are parameters to the run
+#
+# RETURN VALUE:
+# This script should print one numerical value: the cost that must be minimized.
+###############################################################################
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "${SCRIPT_DIR}")"
+
+# Path to the executable
+EXE="${PROJECT_DIR}/main"
+
+# Set library path for Gurobi
+export LD_LIBRARY_PATH=/opt/gurobi1203/linux64/lib:$LD_LIBRARY_PATH
+
+error() {
+    echo "`TZ=UTC date`: $0: error: $@" >&2
+    exit 1
+}
+
+# Parse irace arguments
+CONFIG_ID=$1
+INSTANCE_ID=$2
+SEED=$3
+INSTANCE=$4
+shift 4 || error "Not enough parameters"
+CONFIG_PARAMS=$*
+
+# Check if executable exists
+if [ ! -x "${EXE}" ]; then
+    error "${EXE}: not found or not executable"
+fi
+
+# Temporary files for output (in tuning directory)
+STDOUT="${SCRIPT_DIR}/c${CONFIG_ID}-${INSTANCE_ID}-${SEED}.stdout"
+STDERR="${SCRIPT_DIR}/c${CONFIG_ID}-${INSTANCE_ID}-${SEED}.stderr"
+
+# Extract instance name without path and extension
+INSTANCE_NAME=$(basename "${INSTANCE}" .evrp)
+
+# Run the algorithm from the project directory so it finds dataset/
+cd "${PROJECT_DIR}"
+$EXE "${INSTANCE_NAME}" --meta --seed=${SEED} --tempo-limite=30 ${CONFIG_PARAMS} 1> ${STDOUT} 2> ${STDERR}
+
+# Check if output file exists and has content
+if [ ! -s "${STDOUT}" ]; then
+    if [ -s "${STDERR}" ]; then
+        error "Algorithm failed: $(cat ${STDERR})"
+    fi
+    error "${STDOUT}: No such file or directory or empty"
+fi
+
+# Get the cost from the last line of output
+COST=$(tail -n 1 ${STDOUT} | grep -E '^[[:space:]]*[+-]?[0-9]+\.?[0-9]*' | awk '{print $1}')
+
+# Validate that we got a number
+if [ -z "${COST}" ]; then
+    error "Could not parse cost from output. Last 5 lines: $(tail -5 ${STDOUT})"
+fi
+
+# Output the cost
+echo "${COST}"
+
+# Clean up temporary files
+rm -f "${STDOUT}" "${STDERR}"
+
+exit 0

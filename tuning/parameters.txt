@@ -1,0 +1,22 @@
+## Parameter file for irace - EVRP Simulated Annealing
+##
+## Format: name  switch  type  range  [condition]
+## Types: i=integer, r=real, c=categorical, o=ordinal
+
+# Temperatura inicial (initial temperature)
+# Higher values allow more exploration at the start
+temp_inicial        "--temp-inicial="       r       (100, 10000)
+
+# Temperatura final (final temperature)
+# Lower values allow algorithm to run longer
+temp_final          "--temp-final="         r,log   (0.0001, 0.1)
+
+# Taxa de resfriamento (cooling rate)
+# Values closer to 1 mean slower cooling
+taxa_resfriamento   "--taxa-resfriamento="  r       (0.99, 0.99999)
+
+# Iteracoes por temperatura (iterations per temperature level)
+iter_temp           "--iter-temp="          i       (10, 300)
+
+[global]
+digits = 5
