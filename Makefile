@@ -12,7 +12,7 @@ CPLEX_LIB = -L$(CPLEX_HOME)/cplex/lib/x86-64_linux/static_pic \
             -L$(CPLEX_HOME)/concert/lib/x86-64_linux/static_pic \
             -lilocplex -lcplex -lconcert -lm -lpthread -ldl
 
-SOURCES = main.cpp utils.cpp cplex_solver.cpp gurobi_solver.cpp meta_heuristica.cpp
+SOURCES = main.cpp utils.cpp cplex_solver.cpp gurobi_solver.cpp
 TARGET = main
 
 all: $(TARGET)

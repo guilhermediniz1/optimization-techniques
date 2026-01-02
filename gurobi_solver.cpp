@@ -11,7 +11,8 @@
 
 using namespace std;
 
-void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquivo) {
+void resolverEVRPGurobi(const InstanciaEVRP &instancia,
+                        const string &nomeArquivo) {
   imprimirInstanciaEVRP(instancia);
 
   // Extrai apenas o nome do arquivo (sem diretorio)
@@ -61,7 +62,8 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
       int idEstacao2 = instancia.idEstacoes[idEstacaoFisica2] - 1;
       int idx1 = n + s1;
       int idx2 = n + s2;
-      dist[idx1][idx2] = calcularDistancia(instancia.nos[idEstacao1], instancia.nos[idEstacao2]);
+      dist[idx1][idx2] = calcularDistancia(instancia.nos[idEstacao1],
+                                           instancia.nos[idEstacao2]);
     }
   }
 
@@ -79,7 +81,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
 
     cout << "\nIniciando otimizacao com Gurobi..." << endl;
 
-    double tempoInicio = model.get(GRB_DoubleAttr_Runtime);
     model.optimize();
     double tempoTotal = model.get(GRB_DoubleAttr_Runtime);
 
@@ -111,7 +112,8 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
         solFile << "Status: " << status << " (2=Optimal, 9=TimeLimit)" << endl;
 
         if (instancia.valorOtimo > 0) {
-          double gapOtimo = ((ub - instancia.valorOtimo) / instancia.valorOtimo) * 100.0;
+          double gapOtimo =
+              ((ub - instancia.valorOtimo) / instancia.valorOtimo) * 100.0;
           solFile << "Valor Otimo Conhecido: " << instancia.valorOtimo << endl;
           solFile << "GAP vs Otimo (%): " << gapOtimo << endl;
           cout << "  GAP vs Otimo: " << gapOtimo << "%" << endl;
@@ -152,7 +154,8 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
               rota.push_back(atual);
 
               if (atual >= 1 && atual <= numClientes) {
-                cargaRota += getDemandaByNodeId(instancia, instancia.nos[atual].id);
+                cargaRota +=
+                    getDemandaByNodeId(instancia, instancia.nos[atual].id);
               }
 
               int proximo = -1;
@@ -224,7 +227,8 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia, const string &nomeArquiv
     cout << "\nSolucao salva em: " << solucaoArquivo << endl;
 
   } catch (GRBException &e) {
-    cerr << "Erro no Gurobi: " << e.getMessage() << " (Code: " << e.getErrorCode() << ")" << endl;
+    cerr << "Erro no Gurobi: " << e.getMessage()
+         << " (Code: " << e.getErrorCode() << ")" << endl;
   } catch (exception &e) {
     cerr << "Erro: " << e.what() << endl;
   }
