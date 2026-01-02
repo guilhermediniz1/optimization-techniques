@@ -1,0 +1,20 @@
+Instancia: E-n23-k3
+
+UB (Upper Bound): 590.386298
+TEMPO (seg): 6.272604
+
+Rotas:
+Rota 1: 0 12 11 6 1 2 3 16 15 17 14 30 22 20 19 18 0
+  Distancia: 309.976672
+  Carga: 3264.000000
+
+Rota 2: 0 21 4 5 8 25 9 7 0
+  Distancia: 212.472121
+  Carga: 2575.000000
+
+Rota 3: 0 10 13 0
+  Distancia: 67.937504
+  Carga: 4350.000000
+
+Numero de rotas: 3
+Distancia total: 590.386298

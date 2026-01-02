@@ -1,11 +1,9 @@
 #include "gurobi_solver.hpp"
 #include "gurobi_c++.h"
-#include <cmath>
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -110,14 +108,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
         solFile << "GAP (%): " << gap << endl;
         solFile << "TEMPO (seg): " << tempoTotal << endl;
         solFile << "Status: " << status << " (2=Optimal, 9=TimeLimit)" << endl;
-
-        if (instancia.valorOtimo > 0) {
-          double gapOtimo =
-              ((ub - instancia.valorOtimo) / instancia.valorOtimo) * 100.0;
-          solFile << "Valor Otimo Conhecido: " << instancia.valorOtimo << endl;
-          solFile << "GAP vs Otimo (%): " << gapOtimo << endl;
-          cout << "  GAP vs Otimo: " << gapOtimo << "%" << endl;
-        }
 
         // Extrai valores das variaveis x usando getVarByName
         vector<vector<double>> xVal(totalNos, vector<double>(totalNos, 0.0));

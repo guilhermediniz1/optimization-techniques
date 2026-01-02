@@ -1,0 +1,36 @@
+Instancia: E-n76-k7
+
+UB (Upper Bound): 729.662590
+TEMPO (seg): 30.006427
+
+Rotas:
+Rota 1: 0 75 30 21 47 36 69 71 60 70 20 37 82 5 48 0
+  Distancia: 113.177964
+  Carga: 213.000000
+
+Rota 2: 0 6 33 1 73 62 2 68 0
+  Distancia: 59.314793
+  Carga: 124.000000
+
+Rota 3: 0 4 45 29 15 57 54 13 27 52 34 0
+  Distancia: 80.673646
+  Carga: 169.000000
+
+Rota 4: 0 26 58 10 38 11 53 35 7 67 0
+  Distancia: 75.999835
+  Carga: 203.000000
+
+Rota 5: 0 74 61 28 22 64 42 76 43 41 56 23 63 16 17 0
+  Distancia: 140.778961
+  Carga: 220.000000
+
+Rota 6: 0 12 72 39 31 65 66 84 59 14 19 8 46 0
+  Distancia: 131.289497
+  Carga: 217.000000
+
+Rota 7: 0 51 49 24 18 50 55 25 78 9 32 44 3 40 0
+  Distancia: 128.427893
+  Carga: 218.000000
+
+Numero de rotas: 7
+Distancia total: 729.662590
