@@ -1,24 +1,24 @@
 Instancia: E-n22-k4
 
 UB (Upper Bound): 386.951711
-TEMPO (seg): 3.535461
+TEMPO (seg): 0.677570
 
 Rotas:
-Rota 1: 0 17 20 18 15 12 27 0
-  Distancia: 86.808764
-  Carga: 5900.000000
+Rota 1: 0 9 7 5 2 1 29 6 8 0
+  Distancia: 117.533532
+  Carga: 5700.000000
 
 Rota 2: 0 13 11 4 3 25 10 0
   Distancia: 105.748457
   Carga: 5300.000000
 
-Rota 3: 0 14 21 19 16 0
+Rota 3: 0 17 20 18 15 12 27 0
+  Distancia: 86.808764
+  Carga: 5900.000000
+
+Rota 4: 0 16 19 21 14 0
   Distancia: 76.860957
   Carga: 5600.000000
-
-Rota 4: 0 9 7 5 2 1 29 6 8 0
-  Distancia: 117.533532
-  Carga: 5700.000000
 
 Numero de rotas: 4
 Distancia total: 386.951711

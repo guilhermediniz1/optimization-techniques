@@ -41,7 +41,6 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
 
   for (int i = 0; i < n; i++) {
     for (int s = 0; s < m; s++) {
-      // Each physical station has 2 dummies, so map s to physical station index
       int idEstacaoFisica = s / 2;
       int idEstacao = instancia.idEstacoes[idEstacaoFisica] - 1;
       int indiceEstacao = n + s;
@@ -53,7 +52,6 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
 
   for (int s1 = 0; s1 < m; s1++) {
     for (int s2 = 0; s2 < m; s2++) {
-      // Each physical station has 2 dummies, so map to physical station index
       int idEstacaoFisica1 = s1 / 2;
       int idEstacaoFisica2 = s2 / 2;
       int idEstacao1 = instancia.idEstacoes[idEstacaoFisica1] - 1;
@@ -70,7 +68,6 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     IloModel model(env);
     IloCplex cplex(env);
 
-    // Importa o modelo do arquivo LP
     IloObjective obj(env);
     IloNumVarArray vars(env);
     IloRangeArray rngs(env);
@@ -78,7 +75,6 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
     cplex.importModel(model, lpFilename.c_str(), obj, vars, rngs);
     cplex.extract(model);
 
-    // Parametros do solver
     cplex.setParam(IloCplex::Param::TimeLimit, 3600.0);
     cplex.setParam(IloCplex::Param::MIP::Tolerances::MIPGap, 0.0);
 
@@ -129,7 +125,6 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
         }
       }
 
-      // Extrai rotas
       int numRota = 1;
       solFile << "\nRotas:" << endl;
       vector<vector<int>> todasRotas;
@@ -150,7 +145,7 @@ void resolverEVRP(const InstanciaEVRP &instancia, const string &nomeArquivo) {
             rota.push_back(atual);
 
             if (atual >= 1 && atual <= numClientes) {
-              cargaRota +=
+              cargaRota += 
                   getDemandaByNodeId(instancia, instancia.nos[atual].id);
             }
 

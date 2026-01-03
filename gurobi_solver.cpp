@@ -13,7 +13,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
                         const string &nomeArquivo) {
   imprimirInstanciaEVRP(instancia);
 
-  // Extrai apenas o nome do arquivo (sem diretorio)
   string nomeBase = nomeArquivo;
   size_t posSlash = nomeBase.rfind('/');
   if (posSlash != string::npos) {
@@ -24,7 +23,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
     nomeBase = nomeBase.substr(0, posExt);
   }
 
-  // Gera o arquivo LP no diretorio lp/
   string lpFilename = "lp/" + nomeBase + ".lp";
   exportEVRPtoLP(instancia, "lp/" + nomeBase);
 
@@ -33,7 +31,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
   int numClientes = n - 1;
   int totalNos = n + m;
 
-  // Calcula distancias para extrair rotas
   vector<vector<double>> dist(totalNos, vector<double>(totalNos, 0.0));
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++) {
@@ -42,7 +39,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
   }
   for (int i = 0; i < n; i++) {
     for (int s = 0; s < m; s++) {
-      // Each physical station has 2 dummies, so map s to physical station index
       int idEstacaoFisica = s / 2;
       int idEstacao = instancia.idEstacoes[idEstacaoFisica] - 1;
       int indiceEstacao = n + s;
@@ -53,7 +49,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
   }
   for (int s1 = 0; s1 < m; s1++) {
     for (int s2 = 0; s2 < m; s2++) {
-      // Each physical station has 2 dummies, so map to physical station index
       int idEstacaoFisica1 = s1 / 2;
       int idEstacaoFisica2 = s2 / 2;
       int idEstacao1 = instancia.idEstacoes[idEstacaoFisica1] - 1;
@@ -70,10 +65,8 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
     env.set("LogFile", "gurobi.log");
     env.start();
 
-    // Le o modelo do arquivo LP
     GRBModel model = GRBModel(env, lpFilename);
 
-    // Parametros do Solver
     model.set(GRB_DoubleParam_TimeLimit, 3600.0);
     model.set(GRB_DoubleParam_MIPGap, 0.0);
 
@@ -109,7 +102,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
         solFile << "TEMPO (seg): " << tempoTotal << endl;
         solFile << "Status: " << status << " (2=Optimal, 9=TimeLimit)" << endl;
 
-        // Extrai valores das variaveis x usando getVarByName
         vector<vector<double>> xVal(totalNos, vector<double>(totalNos, 0.0));
         for (int i = 0; i < totalNos; i++) {
           for (int j = 0; j < totalNos; j++) {
@@ -123,7 +115,6 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
           }
         }
 
-        // Extrai rotas
         int numRota = 1;
         solFile << "\nRotas:" << endl;
         vector<vector<int>> todasRotas;
@@ -144,7 +135,7 @@ void resolverEVRPGurobi(const InstanciaEVRP &instancia,
               rota.push_back(atual);
 
               if (atual >= 1 && atual <= numClientes) {
-                cargaRota +=
+                cargaRota += 
                     getDemandaByNodeId(instancia, instancia.nos[atual].id);
               }
 
