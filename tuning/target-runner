@@ -1,6 +1,6 @@
 #!/bin/bash
 ###############################################################################
-# target-runner for irace - EVRP Simulated Annealing
+# target-runner for irace - EVRP GRASP
 #
 # PARAMETERS:
 # $1 is the candidate configuration number
@@ -50,7 +50,7 @@ INSTANCE_NAME=$(basename "${INSTANCE}" .evrp)
 
 # Run the algorithm from the project directory so it finds dataset/
 cd "${PROJECT_DIR}"
-$EXE "${INSTANCE_NAME}" --meta --seed=${SEED} --tempo-limite=30 ${CONFIG_PARAMS} 1> ${STDOUT} 2> ${STDERR}
+$EXE "${INSTANCE_NAME}" --grasp --meta --seed=${SEED} --tempo-limite=30 ${CONFIG_PARAMS} 1> ${STDOUT} 2> ${STDERR}
 
 # Check if output file exists and has content
 if [ ! -s "${STDOUT}" ]; then

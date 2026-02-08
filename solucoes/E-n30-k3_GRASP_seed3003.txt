@@ -1,0 +1,21 @@
+Instancia: E-n30-k3
+
+FO (Funcao Objetivo): 557.749727
+TEMPO (seg): 0.706189
+TEMPO_MELHOR (seg): 0.005834
+
+Rotas:
+Rota 1: 0 18 23 10 11 12 17 9 8 14 21 0
+  Distancia: 121.762588
+  Carga: 4125.000000
+
+Rota 2: 0 19 20 3 4 5 2 22 0
+  Distancia: 137.595602
+  Carga: 4325.000000
+
+Rota 3: 0 15 16 13 7 36 26 28 27 25 24 1 6 29 40 0
+  Distancia: 298.391537
+  Carga: 4300.000000
+
+Numero de rotas: 3
+Distancia total: 557.749727
