@@ -26,7 +26,7 @@ static void construirMatrizDistancia(const InstanciaEVRP &instancia,
 
   for (int i = 0; i < n; i++) {
     for (int s = 0; s < m; s++) {
-      int idEstacaoFisica = s / 2;
+      int idEstacaoFisica = s % instancia.estacoes;
       int idEstacao = instancia.idEstacoes[idEstacaoFisica] - 1;
       int indiceEstacao = n + s;
       double d = calcularDistancia(instancia.nos[i], instancia.nos[idEstacao]);
@@ -37,8 +37,8 @@ static void construirMatrizDistancia(const InstanciaEVRP &instancia,
 
   for (int s1 = 0; s1 < m; s1++) {
     for (int s2 = 0; s2 < m; s2++) {
-      int idEstacaoFisica1 = s1 / 2;
-      int idEstacaoFisica2 = s2 / 2;
+      int idEstacaoFisica1 = s1 % instancia.estacoes;
+      int idEstacaoFisica2 = s2 % instancia.estacoes;
       int idEstacao1 = instancia.idEstacoes[idEstacaoFisica1] - 1;
       int idEstacao2 = instancia.idEstacoes[idEstacaoFisica2] - 1;
       int idx1 = n + s1;
@@ -51,7 +51,7 @@ static void construirMatrizDistancia(const InstanciaEVRP &instancia,
 
 static int encontrarMelhorEstacao(const InstanciaEVRP &instancia,
                                   const vector<vector<double>> &dist, int atual,
-                                  int proximo,
+                                  int proximo, double energiaAtual,
                                   const vector<bool> &estacaoUsada) {
   int n = instancia.dimensao;
   int m = instancia.estacoesTotal;
@@ -69,7 +69,7 @@ static int encontrarMelhorEstacao(const InstanciaEVRP &instancia,
     double distEstacaoProximo = dist[idxEstacao][proximo];
     double consumoIda = h * distAtualEstacao;
 
-    if (consumoIda > Q + 0.0001)
+    if (consumoIda > energiaAtual + 0.0001)
       continue;
 
     double energiaAposRecarga = Q;
@@ -93,6 +93,7 @@ static bool inserirEstacoesRota(const InstanciaEVRP &instancia,
   double h = instancia.consumoEnergia;
   double Q = instancia.capacidadeEnergia;
   int n = instancia.dimensao;
+  int m = instancia.estacoesTotal;
 
   bool mudou = true;
   while (mudou) {
@@ -104,8 +105,42 @@ static bool inserirEstacoesRota(const InstanciaEVRP &instancia,
       int para = rota[i + 1];
       double consumo = h * dist[de][para];
 
+      bool precisaEstacao = false;
+
+      // Check 1: Can't reach next node
       if (energia - consumo < -0.0001) {
-        int s = encontrarMelhorEstacao(instancia, dist, de, para, estacaoUsada);
+        precisaEstacao = true;
+      }
+
+      // Check 2: Can reach next node but would be stuck there
+      // (per paper Algorithm 4, line 12)
+      if (!precisaEstacao && !isEstacao(instancia, para)) {
+        double energiaApos = energia - consumo;
+        double minConsParaEstacao = 1e18;
+        bool temEstacaoDisponivel = false;
+        for (int s = 0; s < m; s++) {
+          if (!estacaoUsada[s]) {
+            double c = h * dist[para][n + s];
+            if (c < minConsParaEstacao) {
+              minConsParaEstacao = c;
+              temEstacaoDisponivel = true;
+            }
+          }
+        }
+        // Also consider depot (index 0) as recharging point
+        double consumoParaDeposito = h * dist[para][0];
+        if (consumoParaDeposito < minConsParaEstacao) {
+          minConsParaEstacao = consumoParaDeposito;
+          temEstacaoDisponivel = true;
+        }
+        if (temEstacaoDisponivel && energiaApos < minConsParaEstacao - 0.0001) {
+          precisaEstacao = true;
+        }
+      }
+
+      if (precisaEstacao) {
+        int s = encontrarMelhorEstacao(instancia, dist, de, para, energia,
+                                       estacaoUsada);
         if (s == -1)
           return false;
 
@@ -251,9 +286,10 @@ static Solucao construirSolucao(const InstanciaEVRP &instancia,
   return sol;
 }
 
-static bool buscaLocalRelocate(const InstanciaEVRP &instancia,
-                               const vector<vector<double>> &dist,
-                               Solucao &sol) {
+static bool buscaLocalRelocate(
+    const InstanciaEVRP &instancia, const vector<vector<double>> &dist,
+    Solucao &sol,
+    chrono::high_resolution_clock::time_point deadline = {}) {
   int n = instancia.dimensao;
   int m = instancia.estacoesTotal;
   double C = instancia.capacidade;
@@ -261,6 +297,10 @@ static bool buscaLocalRelocate(const InstanciaEVRP &instancia,
   for (size_t r1 = 0; r1 < sol.rotas.size(); r1++) {
     vector<int> limpa1 = removerEstacoes(instancia, sol.rotas[r1]);
     for (size_t i = 1; i < limpa1.size() - 1; i++) {
+      if (deadline.time_since_epoch().count() > 0 &&
+          chrono::high_resolution_clock::now() >= deadline)
+        return false;
+
       int cliente = limpa1[i];
       No noCliente = getNoByIndex(instancia, cliente);
       double demCliente = getDemandaByNodeId(instancia, noCliente.id);
@@ -332,8 +372,10 @@ static bool buscaLocalRelocate(const InstanciaEVRP &instancia,
   return false;
 }
 
-static bool buscaLocal2Opt(const InstanciaEVRP &instancia,
-                           const vector<vector<double>> &dist, Solucao &sol) {
+static bool buscaLocal2Opt(
+    const InstanciaEVRP &instancia, const vector<vector<double>> &dist,
+    Solucao &sol,
+    chrono::high_resolution_clock::time_point deadline = {}) {
   int n = instancia.dimensao;
   int m = instancia.estacoesTotal;
 
@@ -343,6 +385,9 @@ static bool buscaLocal2Opt(const InstanciaEVRP &instancia,
       continue;
 
     for (size_t i = 1; i < limpa.size() - 2; i++) {
+      if (deadline.time_since_epoch().count() > 0 &&
+          chrono::high_resolution_clock::now() >= deadline)
+        return false;
       for (size_t j = i + 1; j < limpa.size() - 1; j++) {
         vector<int> nova = limpa;
         reverse(nova.begin() + i, nova.begin() + j + 1);
@@ -374,9 +419,10 @@ static bool buscaLocal2Opt(const InstanciaEVRP &instancia,
   return false;
 }
 
-static bool buscaLocalExchange(const InstanciaEVRP &instancia,
-                               const vector<vector<double>> &dist,
-                               Solucao &sol) {
+static bool buscaLocalExchange(
+    const InstanciaEVRP &instancia, const vector<vector<double>> &dist,
+    Solucao &sol,
+    chrono::high_resolution_clock::time_point deadline = {}) {
   int n = instancia.dimensao;
   int m = instancia.estacoesTotal;
   double C = instancia.capacidade;
@@ -384,6 +430,9 @@ static bool buscaLocalExchange(const InstanciaEVRP &instancia,
   for (size_t r1 = 0; r1 < sol.rotas.size(); r1++) {
     vector<int> limpa1 = removerEstacoes(instancia, sol.rotas[r1]);
     for (size_t i = 1; i < limpa1.size() - 1; i++) {
+      if (deadline.time_since_epoch().count() > 0 &&
+          chrono::high_resolution_clock::now() >= deadline)
+        return false;
       for (size_t r2 = r1 + 1; r2 < sol.rotas.size(); r2++) {
         vector<int> limpa2 = removerEstacoes(instancia, sol.rotas[r2]);
         for (size_t j = 1; j < limpa2.size() - 1; j++) {
@@ -456,20 +505,25 @@ static bool buscaLocalExchange(const InstanciaEVRP &instancia,
   return false;
 }
 
-static void buscaLocal(const InstanciaEVRP &instancia,
-                       const vector<vector<double>> &dist, Solucao &sol) {
+static void buscaLocal(
+    const InstanciaEVRP &instancia, const vector<vector<double>> &dist,
+    Solucao &sol,
+    chrono::high_resolution_clock::time_point deadline = {}) {
   bool melhorou = true;
   while (melhorou) {
+    if (deadline.time_since_epoch().count() > 0 &&
+        chrono::high_resolution_clock::now() >= deadline)
+      break;
     melhorou = false;
-    if (buscaLocal2Opt(instancia, dist, sol)) {
+    if (buscaLocal2Opt(instancia, dist, sol, deadline)) {
       melhorou = true;
       continue;
     }
-    if (buscaLocalRelocate(instancia, dist, sol)) {
+    if (buscaLocalRelocate(instancia, dist, sol, deadline)) {
       melhorou = true;
       continue;
     }
-    if (buscaLocalExchange(instancia, dist, sol)) {
+    if (buscaLocalExchange(instancia, dist, sol, deadline)) {
       melhorou = true;
       continue;
     }
@@ -503,23 +557,39 @@ double resolverEVRPGRASP(const InstanciaEVRP &instancia,
   mt19937 rng(semente);
 
   auto inicio = chrono::high_resolution_clock::now();
+  auto deadline = chrono::high_resolution_clock::time_point{};
+  if (params.tempo_limite > 0) {
+    deadline = inicio + chrono::duration_cast<chrono::high_resolution_clock::duration>(
+                            chrono::duration<double>(params.tempo_limite));
+  }
 
   Solucao melhorSolucao;
   melhorSolucao.custo = 1e18;
   double tempoMelhor = 0.0;
 
   for (int iter = 0; iter < params.max_iter; iter++) {
-    if (params.tempo_limite > 0) {
-      auto agora = chrono::high_resolution_clock::now();
-      double elapsed = chrono::duration<double>(agora - inicio).count();
-      if (elapsed >= params.tempo_limite)
-        break;
-    }
+    if (deadline.time_since_epoch().count() > 0 &&
+        chrono::high_resolution_clock::now() >= deadline)
+      break;
 
     Solucao sol = construirSolucao(instancia, dist, params.alpha, rng);
-    buscaLocal(instancia, dist, sol);
 
-    if (sol.custo < melhorSolucao.custo) {
+    // Aceitar solução construída antes da busca local se for válida
+    if (sol.custo < melhorSolucao.custo &&
+        validarSolucao(instancia, sol.rotas, dist, false)) {
+      melhorSolucao = sol;
+      auto agora = chrono::high_resolution_clock::now();
+      tempoMelhor = chrono::duration<double>(agora - inicio).count();
+      if (params.verbose) {
+        cout << "Iteracao " << (iter + 1) << " (construcao): custo = " << fixed
+             << setprecision(6) << melhorSolucao.custo << endl;
+      }
+    }
+
+    buscaLocal(instancia, dist, sol, deadline);
+
+    if (sol.custo < melhorSolucao.custo &&
+        validarSolucao(instancia, sol.rotas, dist, false)) {
       melhorSolucao = sol;
       auto agora = chrono::high_resolution_clock::now();
       tempoMelhor = chrono::duration<double>(agora - inicio).count();
@@ -537,6 +607,9 @@ double resolverEVRPGRASP(const InstanciaEVRP &instancia,
   string solucaoArquivo = "solucoes/" + nomeBase + "_GRASP";
   if (params.seed >= 0) {
     solucaoArquivo += "_seed" + to_string(params.seed);
+  }
+  if (params.run_number >= 0) {
+    solucaoArquivo += "_run" + to_string(params.run_number + 1);
   }
   solucaoArquivo += ".txt";
 

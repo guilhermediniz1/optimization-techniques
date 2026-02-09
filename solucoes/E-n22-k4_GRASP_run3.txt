@@ -1,0 +1,25 @@
+Instancia: E-n22-k4
+
+FO (Funcao Objetivo): 385.441756
+TEMPO (seg): 60.505640
+TEMPO_MELHOR (seg): 0.011918
+
+Rotas:
+Rota 1: 0 17 20 18 15 12 27 0
+  Distancia: 86.808764
+  Carga: 5900.000000
+
+Rota 2: 0 16 19 21 14 0
+  Distancia: 76.860957
+  Carga: 5600.000000
+
+Rota 3: 0 13 11 4 3 25 6 8 0
+  Distancia: 108.179659
+  Carga: 5200.000000
+
+Rota 4: 0 9 7 5 2 1 29 10 0
+  Distancia: 113.592376
+  Carga: 5800.000000
+
+Numero de rotas: 4
+Distancia total: 385.441756

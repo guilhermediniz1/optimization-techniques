@@ -1,0 +1,37 @@
+Instancia: E-n76-k7
+
+FO (Funcao Objetivo): 732.713168
+TEMPO (seg): 300.000035
+TEMPO_MELHOR (seg): 53.791441
+
+Rotas:
+Rota 1: 0 6 51 16 23 56 24 49 77 3 44 17 0
+  Distancia: 103.402354
+  Carga: 162.000000
+
+Rota 2: 0 4 30 48 21 61 28 74 75 0
+  Distancia: 79.389098
+  Carga: 174.000000
+
+Rota 3: 0 67 46 8 35 14 59 19 54 83 52 34 0
+  Distancia: 96.273434
+  Carga: 207.000000
+
+Rota 4: 0 7 53 11 66 65 38 10 81 12 26 0
+  Distancia: 87.367784
+  Carga: 204.000000
+
+Rota 5: 0 33 63 73 1 43 41 64 42 76 22 62 2 68 0
+  Distancia: 114.464641
+  Carga: 200.000000
+
+Rota 6: 0 58 72 39 9 31 25 78 55 18 50 32 40 0
+  Distancia: 129.839365
+  Carga: 209.000000
+
+Rota 7: 0 45 29 5 47 36 69 71 60 70 20 37 82 15 57 13 27 0
+  Distancia: 121.976491
+  Carga: 208.000000
+
+Numero de rotas: 7
+Distancia total: 732.713168

@@ -50,7 +50,7 @@ INSTANCE_NAME=$(basename "${INSTANCE}" .evrp)
 
 # Run the algorithm from the project directory so it finds dataset/
 cd "${PROJECT_DIR}"
-$EXE "${INSTANCE_NAME}" --grasp --meta --seed=${SEED} --tempo-limite=30 ${CONFIG_PARAMS} 1> ${STDOUT} 2> ${STDERR}
+$EXE "${INSTANCE_NAME}" --grasp --seed=${SEED} --tempo-limite=30 ${CONFIG_PARAMS} 1> ${STDOUT} 2> ${STDERR}
 
 # Check if output file exists and has content
 if [ ! -s "${STDOUT}" ]; then
@@ -60,8 +60,8 @@ if [ ! -s "${STDOUT}" ]; then
     error "${STDOUT}: No such file or directory or empty"
 fi
 
-# Get the cost from the last line of output
-COST=$(tail -n 1 ${STDOUT} | grep -E '^[[:space:]]*[+-]?[0-9]+\.?[0-9]*' | awk '{print $1}')
+# Get the cost from the "Custo:" line in the output
+COST=$(grep -oP 'Custo:\s*\K[0-9]+\.?[0-9]*' ${STDOUT} | tail -1)
 
 # Validate that we got a number
 if [ -z "${COST}" ]; then

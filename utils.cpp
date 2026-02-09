@@ -100,7 +100,7 @@ bool carregarInstancia(const string &nomeArquivo, InstanciaEVRP &instancia) {
         ssValor >> instancia.dimensao;
       } else if (chave == "STATIONS") {
         ssValor >> instancia.estacoes;
-        instancia.estacoesTotal = instancia.estacoes * 2;
+        instancia.estacoesTotal = instancia.estacoes * instancia.veiculos;
       } else if (chave == "CAPACITY") {
         ssValor >> instancia.capacidade;
       } else if (chave == "ENERGY_CAPACITY") {
@@ -475,6 +475,14 @@ bool validarSolucao(const InstanciaEVRP &instancia,
   if (verbose) {
     cout << "\n=== Validando Solucao ===" << endl;
     cout << "Numero de rotas: " << rotas.size() << endl;
+  }
+
+  if ((int)rotas.size() > instancia.veiculos) {
+    if (verbose) {
+      cerr << "Erro: Numero de rotas (" << rotas.size()
+           << ") excede o limite de veiculos (" << instancia.veiculos << ")!" << endl;
+    }
+    todasValidas = false;
   }
 
   for (size_t r = 0; r < rotas.size(); r++) {

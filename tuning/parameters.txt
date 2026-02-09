@@ -1,5 +1,3 @@
-## Parameter file for irace - EVRP GRASP
-##
 ## Format: name  switch  type  range  [condition]
 ## Types: i=integer, r=real, c=categorical, o=ordinal
 
@@ -7,4 +5,4 @@
 alpha       "--alpha="      r    (0.0, 1.0)
 
 # Maximum number of GRASP iterations
-max_iter    "--max-iter="   i    (50, 500)
+max_iter    "--max-iter="   i    (50, 100000)

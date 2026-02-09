@@ -1,0 +1,13 @@
+Solver: GRASP
+
+--- Resumo da Instancia ---
+Nome: Mavrovouniotis Menelaou Instances Test: 1 
+Tipo: EVRP 
+Veiculos: 7
+Dimensao: 76
+Estacoes: 9
+Capacidade: 220
+Deposito: 1
+--------------------------------
+Iteracao 1 (construcao): custo = 2680.985505
+Iteracao 1: melhor custo = 974.831406

@@ -1,0 +1,29 @@
+Instancia: E-n51-k5
+
+FO (Funcao Objetivo): 555.024921
+TEMPO (seg): 300.000006
+TEMPO_MELHOR (seg): 158.430680
+
+Rotas:
+Rota 1: 0 12 5 49 30 34 50 9 38 46 0
+  Distancia: 77.463720
+  Carga: 154.000000
+
+Rota 2: 0 47 18 4 17 37 15 45 33 39 57 10 0
+  Distancia: 111.379269
+  Carga: 149.000000
+
+Rota 3: 0 1 22 28 31 8 26 7 53 43 24 23 48 27 0
+  Distancia: 128.226573
+  Carga: 158.000000
+
+Rota 4: 0 11 16 21 29 20 35 36 3 59 2 32 0
+  Distancia: 112.556584
+  Carga: 157.000000
+
+Rota 5: 0 6 14 25 13 40 19 41 51 42 44 0
+  Distancia: 125.398775
+  Carga: 159.000000
+
+Numero de rotas: 5
+Distancia total: 555.024921

@@ -14,6 +14,7 @@ int main(int argc, char *argv[]) {
   string solver = "gurobi";
   GRASPParams graspParams;
   bool metaMode = false;
+  int runs = 1;
 
   for (int i = 1; i < argc; i++) {
     string arg = argv[i];
@@ -33,6 +34,8 @@ int main(int argc, char *argv[]) {
       graspParams.max_iter = atoi(arg.substr(11).c_str());
     } else if (arg.rfind("--tempo-limite=", 0) == 0) {
       graspParams.tempo_limite = atof(arg.substr(15).c_str());
+    } else if (arg.rfind("--runs=", 0) == 0) {
+      runs = atoi(arg.substr(7).c_str());
     } else if (argv[i][0] != '-') {
       nomeInstancia = argv[i];
     } else {
@@ -57,7 +60,16 @@ int main(int argc, char *argv[]) {
       if (graspParams.verbose) {
         cout << "Solver: GRASP" << endl;
       }
-      resolverEVRPGRASP(instancia, nomeInstancia, graspParams);
+      for (int r = 0; r < runs; r++) {
+        GRASPParams p = graspParams;
+        if (runs > 1) {
+          p.run_number = r;
+          if (p.verbose) {
+            cout << "\n=== Run " << (r + 1) << "/" << runs << " ===" << endl;
+          }
+        }
+        resolverEVRPGRASP(instancia, nomeInstancia, p);
+      }
     } else if (solver == "gurobi") {
       cout << "Solver: GUROBI" << endl;
       resolverEVRPGurobi(instancia, nomeInstancia);

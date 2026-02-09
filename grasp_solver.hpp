@@ -12,6 +12,7 @@ struct GRASPParams {
   int seed = -1;
   double tempo_limite = -1;
   bool verbose = true;
+  int run_number = -1; // -1 = no suffix, >= 0 appends _runN to filename
 };
 
 double resolverEVRPGRASP(const InstanciaEVRP &instancia,
